@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseProposalDraft, isStructuredProposalContent } from "@/lib/proposal-draft";
 import { requireRole } from "@/lib/server-auth";
 import { getSupabaseServerClient } from "@/lib/supabase";
 
@@ -75,20 +76,21 @@ export async function PATCH(request: Request, context: RouteContext) {
     });
   }
 
-  const caseTemplate = buildCaseTemplate(
-    proposalResult.data.title,
-    proposalResult.data.content,
-  );
+  const caseTemplate = buildCaseTemplate(proposalResult.data.title, proposalResult.data.content);
 
   const casesTable = supabase.from("cases") as unknown as {
     insert: (values: {
       title: string;
       question: string;
+      narrative_timeline: string;
       stable_conclusion: string;
       confirmed_facts: string;
+      possible_explanations: string;
       unsupported_claims: string;
       evidence_list: string;
       open_questions: string;
+      summary_image_url: string;
+      summary_image_note: string;
       status: "formal";
       created_by: string | null;
     }) => {
@@ -101,12 +103,16 @@ export async function PATCH(request: Request, context: RouteContext) {
   const caseInsertResult = await casesTable
     .insert({
       title: proposalResult.data.title,
-      question: proposalResult.data.content,
+      question: caseTemplate.question,
+      narrative_timeline: caseTemplate.narrative_timeline,
       stable_conclusion: caseTemplate.stable_conclusion,
       confirmed_facts: caseTemplate.confirmed_facts,
+      possible_explanations: caseTemplate.possible_explanations,
       unsupported_claims: caseTemplate.unsupported_claims,
       evidence_list: caseTemplate.evidence_list,
       open_questions: caseTemplate.open_questions,
+      summary_image_url: "",
+      summary_image_note: caseTemplate.summary_image_note,
       status: "formal",
       created_by: proposalResult.data.user_id,
     })
@@ -143,36 +149,58 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 }
 
-function buildCaseTemplate(title: string, question: string) {
+function buildCaseTemplate(title: string, content: string) {
   const today = new Intl.DateTimeFormat("zh-TW", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
 
-  const questionSnippet = question.slice(0, 120);
-  const questionTail = question.length > 120 ? "..." : "";
+  if (isStructuredProposalContent(content)) {
+    const draft = parseProposalDraft(content);
+
+    return {
+      question: draft.question || title,
+      narrative_timeline: draft.narrative,
+      stable_conclusion: draft.conclusion || "這份提案剛升格為正式案件，後續可再依新資料修訂結論。",
+      confirmed_facts: draft.facts,
+      possible_explanations: "",
+      unsupported_claims: draft.claims,
+      evidence_list: draft.evidence,
+      open_questions: [
+        "- 哪些段落已足夠從提案提升為可確認事實？",
+        "- 哪些說法需要更多來源交叉比對？",
+      ].join("\n"),
+      summary_image_note: draft.imageNote,
+    };
+  }
+
+  const questionSnippet = content.slice(0, 120);
+  const questionTail = content.length > 120 ? "..." : "";
 
   return {
-    stable_conclusion:
-      "This proposal has been promoted to a formal case. Keep this section as a temporary conclusion until further evidence arrives.",
+    question: content,
+    narrative_timeline: "",
+    stable_conclusion: "這份提案剛升格為正式案件，後續可再依新資料修訂結論。",
     confirmed_facts: [
-      "- This case was created by promoting a proposal.",
-      `- Original proposal title: ${title}`,
-      `- Promotion date: ${today}`,
+      "- 這個案件是由 proposal 升格而來。",
+      `- 原始提案標題：${title}`,
+      `- 升格日期：${today}`,
     ].join("\n"),
+    possible_explanations: "",
     unsupported_claims: [
-      "- Claims below still need independent verification.",
-      "- Review accepted submissions before moving these into confirmed facts.",
+      "- 以下說法仍需要獨立來源驗證。",
+      "- 在移入已確認事實前，請先比對 accepted submissions 與外部材料。",
     ].join("\n"),
     evidence_list: [
-      "- Add links and references collected from accepted submissions.",
-      "- Keep each evidence entry short and traceable.",
+      "- 補上 accepted submissions 中可追溯的來源。",
+      "- 每筆證據盡量保持簡短並可查證。",
     ].join("\n"),
     open_questions: [
-      "- Which parts of the proposal can already be verified?",
-      "- Which claims conflict with current evidence?",
-      `- Follow-up from proposal text: ${questionSnippet}${questionTail}`,
+      "- 提案中的哪些部分已經可以驗證？",
+      "- 目前有哪些說法和現有證據互相衝突？",
+      `- 來自原始提案的後續追問：${questionSnippet}${questionTail}`,
     ].join("\n"),
+    summary_image_note: "",
   };
 }
