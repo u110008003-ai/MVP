@@ -12,40 +12,70 @@ const roleLabel: Record<UserRole, string> = {
   level_3: "Level 3",
 };
 
+type AuthMode = "sign-in" | "sign-up";
+
 export function AuthPanel() {
   const { session, profile, supabaseAvailable } = useAuth();
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
+  const [mode, setMode] = useState<AuthMode>("sign-in");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
+  function handleAuthSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback(null);
 
     if (!supabase) {
-      setFeedback("Supabase 未設定，無法登入。");
+      setFeedback("Supabase 尚未設定，現在無法登入。");
       return;
     }
 
     startTransition(async () => {
       const normalizedEmail = email.trim();
+      const normalizedPassword = password.trim();
       const normalizedName = displayName.trim();
 
-      if (!normalizedEmail) {
-        setFeedback("請輸入 email。");
+      if (!normalizedEmail || !normalizedPassword) {
+        setFeedback("請輸入 email 和密碼。");
         return;
       }
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email: normalizedEmail,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            display_name: normalizedName || normalizedEmail.split("@")[0],
+      if (mode === "sign-up") {
+        if (normalizedPassword.length < 6) {
+          setFeedback("密碼至少要 6 個字元。");
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: normalizedPassword,
+          options: {
+            data: {
+              display_name: normalizedName || normalizedEmail.split("@")[0],
+            },
           },
-        },
+        });
+
+        if (error) {
+          setFeedback(`註冊失敗：${error.message}`);
+          return;
+        }
+
+        if (data.session) {
+          setFeedback("註冊成功，已自動登入。");
+        } else {
+          setFeedback("註冊成功。若 Supabase 啟用了 email confirmation，請先到信箱完成驗證。");
+        }
+
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
       });
 
       if (error) {
@@ -53,7 +83,7 @@ export function AuthPanel() {
         return;
       }
 
-      setFeedback("登入連結已寄出，請到信箱點 magic link。");
+      setFeedback("登入成功。");
     });
   }
 
@@ -90,9 +120,9 @@ export function AuthPanel() {
           </div>
 
           <div className="grid gap-2 text-sm leading-7 text-stone-600">
-            <p>Level 1：可提交 evidence / error / inference。</p>
-            <p>Level 2：可送出 proposal。</p>
-            <p>Level 3：可審核 submissions、編輯 case、升格 proposal。</p>
+            <p>Level 1 可提交 evidence / error / inference。</p>
+            <p>Level 2 可提交 proposal。</p>
+            <p>Level 3 可管理 submissions、編輯 case、升格 proposal。</p>
           </div>
 
           {profile?.role === "level_3" ? (
@@ -114,41 +144,91 @@ export function AuthPanel() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSignIn} className="mt-4 grid gap-4">
-          <label className="grid gap-2">
-            <span className="text-sm font-medium text-stone-700">Email</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
-              className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
-            />
-          </label>
+        <div className="mt-4 grid gap-4">
+          <div className="inline-flex rounded-full border border-stone-200 bg-stone-50 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("sign-in");
+                setFeedback(null);
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                mode === "sign-in"
+                  ? "bg-stone-950 text-white"
+                  : "text-stone-600 hover:text-stone-900"
+              }`}
+            >
+              登入
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("sign-up");
+                setFeedback(null);
+              }}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                mode === "sign-up"
+                  ? "bg-stone-950 text-white"
+                  : "text-stone-600 hover:text-stone-900"
+              }`}
+            >
+              註冊
+            </button>
+          </div>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-medium text-stone-700">顯示名稱（可選）</span>
-            <input
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-              placeholder="例如 Alice"
-              className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
-            />
-          </label>
+          <form onSubmit={handleAuthSubmit} className="grid gap-4">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-stone-700">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+              />
+            </label>
 
-          <button
-            type="submit"
-            disabled={isPending || !supabaseAvailable}
-            className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
-          >
-            {isPending ? "寄送中..." : "寄送登入連結"}
-          </button>
-        </form>
+            {mode === "sign-up" ? (
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-stone-700">顯示名稱（可選）</span>
+                <input
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  placeholder="例如 Alice"
+                  className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                />
+              </label>
+            ) : null}
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-stone-700">密碼</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder={mode === "sign-up" ? "至少 6 個字元" : "輸入密碼"}
+                className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={isPending || !supabaseAvailable}
+              className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+            >
+              {isPending ? "處理中..." : mode === "sign-in" ? "用密碼登入" : "建立帳號"}
+            </button>
+          </form>
+
+          <p className="text-sm leading-7 text-stone-500">
+            現在改成 Email + 密碼登入。若 Supabase 仍開著 email confirmation，第一次註冊可能還是需要收一封確認信。
+          </p>
+        </div>
       )}
 
       {feedback || !supabaseAvailable ? (
         <div className="mt-4 rounded-[1rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
-          {feedback ?? "Supabase 未設定，請先填好環境變數。"}
+          {feedback ?? "Supabase 尚未設定，請先確認環境變數。"}
         </div>
       ) : null}
     </section>
