@@ -3,6 +3,8 @@ import { AuthPanel } from "@/components/auth-panel";
 import { getCases } from "@/lib/cases";
 import { CaseStatus } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const statusLabel: Record<CaseStatus, string> = {
   draft: "草稿",
   proposal: "提案中",

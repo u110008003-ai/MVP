@@ -3,6 +3,8 @@ import { ProposalForm } from "@/components/proposal-form";
 import { ProposalsBoard } from "@/components/proposals-board";
 import { getProposals } from "@/lib/cases";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProposalsPage() {
   const { proposals, error } = await getProposals();
 

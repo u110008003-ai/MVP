@@ -9,12 +9,13 @@ import {
 
 export async function getCases() {
   const supabase = getSupabaseServerClient();
+  const isProduction = process.env.NODE_ENV === "production";
 
   if (!supabase) {
     return {
-      cases: sampleCases,
-      source: "sample" as const,
-      error: "Supabase 尚未設定，先使用本地範例資料。",
+      cases: isProduction ? ([] as CaseRecord[]) : sampleCases,
+      source: isProduction ? ("supabase" as const) : ("sample" as const),
+      error: "Supabase 尚未設定。",
     };
   }
 
@@ -27,8 +28,8 @@ export async function getCases() {
 
   if (error) {
     return {
-      cases: sampleCases,
-      source: "sample" as const,
+      cases: isProduction ? ([] as CaseRecord[]) : sampleCases,
+      source: isProduction ? ("supabase" as const) : ("sample" as const),
       error: `讀取 cases 失敗：${error.message}`,
     };
   }
