@@ -18,6 +18,7 @@ const fieldLabel: Record<FieldKey, string> = {
   narrative_timeline: "事件來龍去脈",
   stable_conclusion: "穩定結論",
   confirmed_facts: "已確認事實",
+  possible_explanations: "目前可能解釋",
   unsupported_claims: "未支持主張",
   evidence_list: "證據與材料",
   open_questions: "待確認問題",
@@ -28,6 +29,7 @@ const fieldLabel: Record<FieldKey, string> = {
 const transferPresets: Array<{ source: FieldKey; target: FieldKey }> = [
   { source: "evidence_list", target: "stable_conclusion" },
   { source: "confirmed_facts", target: "stable_conclusion" },
+  { source: "possible_explanations", target: "stable_conclusion" },
   { source: "open_questions", target: "unsupported_claims" },
   { source: "narrative_timeline", target: "stable_conclusion" },
 ];
@@ -40,6 +42,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     narrative_timeline: caseItem.narrative_timeline,
     stable_conclusion: caseItem.stable_conclusion,
     confirmed_facts: caseItem.confirmed_facts,
+    possible_explanations: caseItem.possible_explanations,
     unsupported_claims: caseItem.unsupported_claims,
     evidence_list: caseItem.evidence_list,
     open_questions: caseItem.open_questions,
@@ -249,6 +252,13 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         label={fieldLabel.confirmed_facts}
         value={form.confirmed_facts}
         onChange={(value) => updateField("confirmed_facts", value)}
+      />
+
+      <Field
+        label={fieldLabel.possible_explanations}
+        hint="把目前這個現象可能有哪些解釋先列出來，和已確認事實分開。"
+        value={form.possible_explanations}
+        onChange={(value) => updateField("possible_explanations", value)}
       />
 
       <Field

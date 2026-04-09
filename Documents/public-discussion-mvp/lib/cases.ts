@@ -1,14 +1,23 @@
 import { sampleCases } from "@/lib/sample-cases";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import {
-  CaseRecord,
-  ProposalRecord,
-  RevisionRecord,
-  SubmissionRecord,
-} from "@/lib/types";
+import { CaseRecord, ProposalRecord, RevisionRecord, SubmissionRecord } from "@/lib/types";
 
-const caseColumns =
-  "id, title, question, narrative_timeline, stable_conclusion, confirmed_facts, unsupported_claims, evidence_list, open_questions, summary_image_url, summary_image_note, status, updated_at";
+const caseColumns = [
+  "id",
+  "title",
+  "question",
+  "narrative_timeline",
+  "stable_conclusion",
+  "confirmed_facts",
+  "possible_explanations",
+  "unsupported_claims",
+  "evidence_list",
+  "open_questions",
+  "summary_image_url",
+  "summary_image_note",
+  "status",
+  "updated_at",
+].join(", ");
 
 export async function getCases() {
   const supabase = getSupabaseServerClient();
@@ -18,7 +27,7 @@ export async function getCases() {
     return {
       cases: isProduction ? ([] as CaseRecord[]) : sampleCases,
       source: isProduction ? ("supabase" as const) : ("sample" as const),
-      error: "Supabase 尚未設定。",
+      error: "Supabase 尚未設定完成。",
     };
   }
 
@@ -58,7 +67,7 @@ export async function getSubmissions() {
   if (!supabase) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: "Supabase 尚未設定，無法讀取 submissions。",
+      error: "Supabase 尚未設定完成，無法讀取 submissions。",
     };
   }
 
@@ -86,7 +95,7 @@ export async function getAcceptedSubmissionsForCase(caseId: string) {
   if (!supabase) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: "Supabase 尚未設定，無法讀取 accepted submissions。",
+      error: "Supabase 尚未設定完成，無法讀取已採納 submissions。",
     };
   }
 
@@ -116,7 +125,7 @@ export async function getRevisionsForCase(caseId: string) {
   if (!supabase) {
     return {
       revisions: [] as RevisionRecord[],
-      error: "Supabase 尚未設定，無法讀取 revisions。",
+      error: "Supabase 尚未設定完成，無法讀取 revisions。",
     };
   }
 
@@ -145,7 +154,7 @@ export async function getProposals() {
   if (!supabase) {
     return {
       proposals: [] as ProposalRecord[],
-      error: "Supabase 尚未設定，無法讀取 proposals。",
+      error: "Supabase 尚未設定完成，無法讀取 proposals。",
     };
   }
 

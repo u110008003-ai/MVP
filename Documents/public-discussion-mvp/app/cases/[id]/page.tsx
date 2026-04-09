@@ -17,7 +17,7 @@ type PageProps = {
   }>;
 };
 
-type CardTone = "neutral" | "gold" | "success" | "warning";
+type CardTone = "neutral" | "gold" | "success" | "warning" | "info";
 
 const statusLabel: Record<CaseStatus, string> = {
   draft: "草稿",
@@ -121,6 +121,11 @@ export default async function CaseDetailPage({ params }: PageProps) {
 
         <section className="grid gap-4 md:grid-cols-2">
           <FieldCard label="已確認事實" value={caseItem.confirmed_facts} tone="success" />
+          <FieldCard
+            label="目前可能解釋"
+            value={caseItem.possible_explanations}
+            tone="info"
+          />
           <FieldCard label="未支持主張" value={caseItem.unsupported_claims} tone="warning" />
           <FieldCard label="證據與材料" value={caseItem.evidence_list} tone="neutral" />
           <FieldCard label="待確認問題" value={caseItem.open_questions} tone="neutral" />
@@ -270,7 +275,9 @@ function FieldCard({
         ? "border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#1c1b19)]"
         : tone === "gold"
           ? "border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)]"
-          : "border-white/10 bg-[var(--color-surface-card)]";
+          : tone === "info"
+            ? "border-[oklch(0.65_0.08_240_/_0.22)] bg-[color-mix(in_oklch,#4f7cff_7%,#1c1b19)]"
+            : "border-white/10 bg-[var(--color-surface-card)]";
 
   const titleClass =
     tone === "success"
@@ -279,7 +286,9 @@ function FieldCard({
         ? "text-[var(--color-warning)]"
         : tone === "gold"
           ? "text-[var(--color-gold)]"
-          : "text-[var(--color-text-muted)]";
+          : tone === "info"
+            ? "text-[oklch(0.75_0.12_245)]"
+            : "text-[var(--color-text-muted)]";
 
   return (
     <article className={`rounded-[1.5rem] border p-6 ${cardClass}`}>
@@ -313,7 +322,9 @@ function FormattedText({ value, tone }: { value: string; tone: CardTone }) {
         ? "bg-[var(--color-warning)]"
         : tone === "gold"
           ? "bg-[var(--color-gold)]"
-          : "bg-[var(--color-text-muted)]";
+          : tone === "info"
+            ? "bg-[oklch(0.75_0.12_245)]"
+            : "bg-[var(--color-text-muted)]";
 
   if (isBulletList) {
     return (

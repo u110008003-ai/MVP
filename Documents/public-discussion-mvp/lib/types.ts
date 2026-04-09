@@ -9,6 +9,7 @@ export type CaseRecord = {
   narrative_timeline: string;
   stable_conclusion: string;
   confirmed_facts: string;
+  possible_explanations: string;
   unsupported_claims: string;
   evidence_list: string;
   open_questions: string;
@@ -22,6 +23,7 @@ export type CaseUpdatePayload = Pick<
   CaseRecord,
   | "stable_conclusion"
   | "confirmed_facts"
+  | "possible_explanations"
   | "unsupported_claims"
   | "evidence_list"
   | "open_questions"
