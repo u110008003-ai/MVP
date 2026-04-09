@@ -19,16 +19,16 @@ export default async function Home() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <section className="rounded-[2rem] border border-stone-300/70 bg-white/90 p-8 shadow-[0_20px_80px_-40px_rgba(41,37,36,0.45)] backdrop-blur">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
-            Public Discussion MVP
+            公共討論平台 MVP
           </p>
 
           <div className="mt-4 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <div>
               <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-stone-950">
-                以結構化方式整理公共議題，讓討論可追蹤、可修正、可升格。
+                用結構化方式整理公共議題，讓討論可以被追蹤、修正與升格。
               </h1>
               <p className="mt-4 max-w-2xl text-lg leading-8 text-stone-700">
-                先建立 case，再收集 submissions，最後把成熟內容整理成正式結論。
+                先建立案件，再收集補充資料與修正，最後把成熟內容整理成較穩定的結論。
               </p>
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -38,18 +38,18 @@ export default async function Home() {
                     {source === "supabase" ? "Supabase" : "本地範例"}
                   </p>
                   <p className="mt-4 text-sm leading-7 text-stone-300">
-                    {error ?? "讀取成功。"}
+                    {error ?? "讀取正常。"}
                   </p>
                 </div>
 
                 <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-6">
                   <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">
-                    Role Design
+                    角色說明
                   </p>
                   <div className="mt-4 grid gap-2 text-sm leading-7 text-stone-700">
-                    <p>Level 1：可提交 evidence / error / inference。</p>
-                    <p>Level 2：可新增 proposal。</p>
-                    <p>Level 3：可審核 submissions、編輯 case、升格 proposal。</p>
+                    <p>Level 1 可以提交證據、錯誤修正與推論補充。</p>
+                    <p>Level 2 可以提交新提案。</p>
+                    <p>Level 3 以上可以審核補充內容、編輯案件、升格提案。</p>
                   </div>
                 </div>
               </div>
@@ -62,10 +62,10 @@ export default async function Home() {
         <section className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-              Case List
+              案件列表
             </p>
             <h2 className="mt-2 text-2xl font-semibold text-stone-950">
-              案例清單
+              目前正在追蹤的議題
             </h2>
           </div>
 
@@ -74,7 +74,7 @@ export default async function Home() {
               href="/proposals"
               className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-950"
             >
-              前往 Proposals
+              前往提案區
             </Link>
           </div>
         </section>
@@ -82,7 +82,7 @@ export default async function Home() {
         <section className="grid gap-4">
           {cases.length === 0 ? (
             <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-white p-8 text-stone-600">
-              目前沒有案例。
+              目前沒有案件。
             </div>
           ) : (
             cases.map((caseItem) => (
@@ -127,9 +127,11 @@ export default async function Home() {
 
 function formatDate(value: string) {
   const date = new Date(value);
+
   if (Number.isNaN(date.getTime())) {
     return "未知";
   }
+
   return new Intl.DateTimeFormat("zh-TW", {
     year: "numeric",
     month: "2-digit",

@@ -10,7 +10,7 @@ const roleLabel: Record<UserRole, string> = {
   level_1: "Level 1",
   level_2: "Level 2",
   level_3: "Level 3",
-  level_4: "Admin",
+  level_4: "管理員",
 };
 
 type AuthMode = "sign-in" | "sign-up";
@@ -102,7 +102,7 @@ export function AuthPanel() {
   return (
     <section className="rounded-[1.75rem] border border-stone-200 bg-white p-5 shadow-[0_12px_40px_-30px_rgba(41,37,36,0.35)]">
       <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">
-        Identity
+        帳號
       </p>
 
       {session?.user ? (

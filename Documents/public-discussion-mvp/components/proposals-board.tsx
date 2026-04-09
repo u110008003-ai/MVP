@@ -28,7 +28,7 @@ export function ProposalsBoard({
     }
 
     if (!canPromote) {
-      setFeedback("只有 Level 3 可以升格 proposal。");
+      setFeedback("只有 Level 3 以上可以將提案升格為案件。");
       return;
     }
 
@@ -38,7 +38,7 @@ export function ProposalsBoard({
       const accessToken = session.access_token;
 
       if (!accessToken) {
-        setFeedback("登入已過期，請重新登入。");
+        setFeedback("登入已失效，請重新登入後再試。");
         return;
       }
 
@@ -73,7 +73,7 @@ export function ProposalsBoard({
             : proposal,
         ),
       );
-      setFeedback(data.message ?? "Proposal 已升格為 case。");
+      setFeedback(data.message ?? "提案已成功升格為案件。");
     });
   }
 
@@ -87,7 +87,7 @@ export function ProposalsBoard({
 
       {proposals.length === 0 ? (
         <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-white p-8 text-stone-600">
-          目前沒有 proposals。
+          目前還沒有任何提案。
         </div>
       ) : (
         proposals.map((proposal) => (
@@ -97,7 +97,7 @@ export function ProposalsBoard({
           >
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                {proposal.status === "promoted" ? "已升格" : "待審核"}
+                {proposal.status === "promoted" ? "已升格" : "待審查"}
               </span>
               <span className="text-sm text-stone-500">
                 提案者：{proposal.profiles?.display_name ?? "未知"}
@@ -115,7 +115,7 @@ export function ProposalsBoard({
                   href={`/cases/${proposal.promoted_case_id}`}
                   className="inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:text-stone-950"
                 >
-                  查看新 case
+                  查看對應案件
                 </Link>
               ) : null}
 
@@ -126,7 +126,7 @@ export function ProposalsBoard({
                   disabled={isPending || loading}
                   className="inline-flex rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
                 >
-                  升格為 case
+                  升格為案件
                 </button>
               ) : null}
             </div>
