@@ -1,6 +1,6 @@
 export type CaseStatus = "draft" | "proposal" | "formal";
 export type SubmissionType = "evidence" | "error" | "inference";
-export type UserRole = "level_1" | "level_2" | "level_3";
+export type UserRole = "level_1" | "level_2" | "level_3" | "level_4";
 
 export type CaseRecord = {
   id: string;

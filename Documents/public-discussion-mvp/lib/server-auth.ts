@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import { roleMeetsRequirement } from "@/lib/roles";
 import type { ProfileRecord, UserRole } from "@/lib/types";
 
 export type RequestActor = {
@@ -7,12 +8,6 @@ export type RequestActor = {
   email: string;
   display_name: string;
   role: UserRole;
-};
-
-const roleRank: Record<UserRole, number> = {
-  level_1: 1,
-  level_2: 2,
-  level_3: 3,
 };
 
 function getBearerToken(request: Request) {
@@ -24,10 +19,6 @@ function getBearerToken(request: Request) {
 
   const token = authorization.slice("Bearer ".length).trim();
   return token || null;
-}
-
-export function roleMeetsRequirement(actorRole: UserRole, requiredRole: UserRole) {
-  return roleRank[actorRole] >= roleRank[requiredRole];
 }
 
 export async function authenticateRequest(request: Request) {

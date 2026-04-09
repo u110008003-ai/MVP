@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { roleMeetsRequirement } from "@/lib/roles";
 
 export function ProposalForm() {
   const { loading, session, profile } = useAuth();
@@ -13,7 +14,7 @@ export function ProposalForm() {
 
   const canPropose =
     Boolean(session?.user) &&
-    (profile?.role === "level_2" || profile?.role === "level_3");
+    Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_2"));
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

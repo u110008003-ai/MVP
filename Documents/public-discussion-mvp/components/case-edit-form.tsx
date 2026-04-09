@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { roleMeetsRequirement } from "@/lib/roles";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
 
 type CaseEditFormProps = {
@@ -81,7 +82,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    if (profile?.role !== "level_3") {
+    if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
       setFeedback("只有 Level 3 可以更新 case。");
       return;
     }
@@ -115,7 +116,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    if (profile?.role !== "level_3") {
+    if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
       setFeedback("只有 Level 3 可以刪除 case。");
       return;
     }

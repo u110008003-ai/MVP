@@ -10,6 +10,7 @@ const roleLabel: Record<UserRole, string> = {
   level_1: "Level 1",
   level_2: "Level 2",
   level_3: "Level 3",
+  level_4: "Admin",
 };
 
 type AuthMode = "sign-in" | "sign-up";
@@ -125,7 +126,7 @@ export function AuthPanel() {
             <p>Level 3 可管理 submissions、編輯 case、升格 proposal。</p>
           </div>
 
-          {profile?.role === "level_3" ? (
+          {profile?.role && (profile.role === "level_3" || profile.role === "level_4") ? (
             <Link
               href="/admin/submissions"
               className="inline-flex w-fit rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:bg-stone-50"

@@ -2,6 +2,7 @@
 
 import { AdminSubmissionsBoard } from "@/components/admin-submissions-board";
 import { useAuth } from "@/components/auth-provider";
+import { roleMeetsRequirement } from "@/lib/roles";
 import type { SubmissionRecord } from "@/lib/types";
 
 export function AdminSubmissionsShell({
@@ -27,7 +28,7 @@ export function AdminSubmissionsShell({
     );
   }
 
-  if (profile?.role !== "level_3") {
+  if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
     return (
       <section className="rounded-[2rem] border border-rose-300 bg-rose-50 p-8 text-rose-900">
         權限不足：只有 Level 3 可以使用 submissions 管理功能。

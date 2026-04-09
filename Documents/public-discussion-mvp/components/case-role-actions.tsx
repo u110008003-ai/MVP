@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
+import { roleMeetsRequirement } from "@/lib/roles";
 
 export function CaseRoleActions({ caseId }: { caseId: string }) {
   const { loading, profile } = useAuth();
@@ -14,7 +15,7 @@ export function CaseRoleActions({ caseId }: { caseId: string }) {
     );
   }
 
-  if (profile?.role !== "level_3") {
+  if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
     return null;
   }
 

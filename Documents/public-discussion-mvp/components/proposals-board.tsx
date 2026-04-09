@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { roleMeetsRequirement } from "@/lib/roles";
 import type { ProposalRecord } from "@/lib/types";
 
 export function ProposalsBoard({
@@ -16,7 +17,9 @@ export function ProposalsBoard({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const canPromote = Boolean(session?.user) && profile?.role === "level_3";
+  const canPromote =
+    Boolean(session?.user) &&
+    Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_3"));
 
   function promoteProposal(proposalId: string) {
     if (!session?.user) {
