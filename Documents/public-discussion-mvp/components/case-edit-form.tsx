@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
+import { getSupabaseBrowserClient } from "@/lib/auth-client";
 import { roleMeetsRequirement } from "@/lib/roles";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
 
@@ -33,6 +34,7 @@ const transferPresets: Array<{ source: FieldKey; target: FieldKey }> = [
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const router = useRouter();
+  const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const { session, profile } = useAuth();
   const [form, setForm] = useState<CaseUpdatePayload>({
     narrative_timeline: caseItem.narrative_timeline,
@@ -47,6 +49,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
+  const [isUploadingImage, startUploadTransition] = useTransition();
 
   function updateField<K extends FieldKey>(field: K, value: CaseUpdatePayload[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -76,6 +79,55 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     });
 
     setFeedback(`已把「${fieldLabel[source]}」的內容附加到「${fieldLabel[target]}」。`);
+  }
+
+  function handleImageUpload(file: File | null) {
+    setFeedback(null);
+
+    if (!file) {
+      return;
+    }
+
+    if (!session?.user || !profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
+      setFeedback("只有 Level 3 以上帳號可以上傳案件總整理圖。");
+      return;
+    }
+
+    if (!supabase) {
+      setFeedback("目前沒有 Supabase 連線，無法上傳圖片。");
+      return;
+    }
+
+    startUploadTransition(async () => {
+      const extension = file.name.includes(".") ? file.name.split(".").pop() ?? "png" : "png";
+      const safeExtension = extension.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+      const filePath = `cases/${caseItem.id}/${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2)}.${safeExtension}`;
+
+      const storageBucket = "case-assets";
+      const storage = supabase.storage.from(storageBucket);
+      const uploadResult = await storage.upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+      if (uploadResult.error) {
+        setFeedback(
+          `圖片上傳失敗：${uploadResult.error.message}。請先建立 Storage bucket 與 policy。`,
+        );
+        return;
+      }
+
+      const publicUrlResult = storage.getPublicUrl(filePath);
+      const publicUrl = publicUrlResult.data.publicUrl;
+
+      setForm((current) => ({
+        ...current,
+        summary_image_url: publicUrl,
+      }));
+      setFeedback("圖片已上傳，總整理圖網址已自動填入。記得再按一次「儲存案件」。");
+    });
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -217,13 +269,43 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         onChange={(value) => updateField("open_questions", value)}
       />
 
-      <Field
-        label={fieldLabel.summary_image_url}
-        hint="貼上圖片網址後，案件頁就會顯示總整理圖。"
-        value={form.summary_image_url}
-        onChange={(value) => updateField("summary_image_url", value)}
-        minHeight="min-h-0"
-      />
+      <section className="grid gap-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
+        <div>
+          <h3 className="text-sm font-semibold text-stone-900">總整理圖</h3>
+          <p className="mt-1 text-xs leading-6 text-stone-500">
+            你現在可以直接選圖片上傳。上傳成功後會自動填入網址，然後再按一次「儲存案件」即可。
+          </p>
+        </div>
+
+        <label className="grid gap-2">
+          <span className="text-sm font-medium text-stone-700">直接上傳圖片</span>
+          <input
+            type="file"
+            accept="image/*"
+            disabled={isUploadingImage || isSaving || isDeleting}
+            onChange={(event) => {
+              const file = event.target.files?.[0] ?? null;
+              handleImageUpload(file);
+              event.currentTarget.value = "";
+            }}
+            className="rounded-[1rem] border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700 file:mr-3 file:rounded-full file:border-0 file:bg-stone-950 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+          />
+        </label>
+
+        {isUploadingImage ? (
+          <div className="rounded-[1rem] border border-stone-200 bg-white px-4 py-3 text-sm leading-7 text-stone-700">
+            圖片上傳中...
+          </div>
+        ) : null}
+
+        <Field
+          label={fieldLabel.summary_image_url}
+          hint="如果你已經有現成圖片網址，也可以直接貼這裡。"
+          value={form.summary_image_url}
+          onChange={(value) => updateField("summary_image_url", value)}
+          minHeight="min-h-0"
+        />
+      </section>
 
       <Field
         label={fieldLabel.summary_image_note}
@@ -237,7 +319,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         <button
           type="button"
           onClick={handleDeleteCase}
-          disabled={isSaving || isDeleting}
+          disabled={isSaving || isDeleting || isUploadingImage}
           className="inline-flex items-center justify-center rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
         >
           {isDeleting ? "刪除中..." : "刪除案件"}
@@ -245,7 +327,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
         <button
           type="submit"
-          disabled={isSaving || isDeleting}
+          disabled={isSaving || isDeleting || isUploadingImage}
           className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
         >
           {isSaving ? "儲存中..." : "儲存案件"}
