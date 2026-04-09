@@ -21,6 +21,7 @@ export type CaseRecord = {
 
 export type CaseUpdatePayload = Pick<
   CaseRecord,
+  | "question"
   | "stable_conclusion"
   | "confirmed_facts"
   | "possible_explanations"

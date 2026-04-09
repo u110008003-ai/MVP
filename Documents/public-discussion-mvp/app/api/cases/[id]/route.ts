@@ -67,6 +67,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const existingCase = existingCaseResult.data;
 
   const payload: CaseUpdatePayload = {
+    question: body.question?.trim() ?? "",
     narrative_timeline: body.narrative_timeline?.trim() ?? "",
     stable_conclusion: body.stable_conclusion?.trim() ?? "",
     confirmed_facts: body.confirmed_facts?.trim() ?? "",
@@ -179,6 +180,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
 function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) {
   const fieldLabels: Record<keyof CaseUpdatePayload, string> = {
+    question: "核心問題",
     narrative_timeline: "事件來龍去脈",
     stable_conclusion: "穩定結論",
     confirmed_facts: "已確認事實",

@@ -15,6 +15,7 @@ type CaseEditFormProps = {
 type FieldKey = keyof CaseUpdatePayload;
 
 const fieldLabel: Record<FieldKey, string> = {
+  question: "核心問題",
   narrative_timeline: "事件來龍去脈",
   stable_conclusion: "穩定結論",
   confirmed_facts: "已確認事實",
@@ -39,6 +40,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const { session, profile } = useAuth();
   const [form, setForm] = useState<CaseUpdatePayload>({
+    question: caseItem.question,
     narrative_timeline: caseItem.narrative_timeline,
     stable_conclusion: caseItem.stable_conclusion,
     confirmed_facts: caseItem.confirmed_facts,
@@ -232,6 +234,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           ))}
         </div>
       </section>
+
+      <Field
+        label={fieldLabel.question}
+        hint="先用一句到一段話講清楚：這個案件到底要回答什麼問題。"
+        value={form.question}
+        onChange={(value) => updateField("question", value)}
+        minHeight="min-h-28"
+      />
 
       <Field
         label={fieldLabel.narrative_timeline}
