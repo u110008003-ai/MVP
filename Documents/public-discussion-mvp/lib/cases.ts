@@ -12,6 +12,7 @@ const caseColumns = [
   "possible_explanations",
   "unsupported_claims",
   "evidence_list",
+  "reference_links",
   "open_questions",
   "summary_image_url",
   "summary_image_note",

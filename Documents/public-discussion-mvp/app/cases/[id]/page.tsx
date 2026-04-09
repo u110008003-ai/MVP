@@ -121,14 +121,28 @@ export default async function CaseDetailPage({ params }: PageProps) {
 
         <section className="grid gap-4 md:grid-cols-2">
           <FieldCard label="已確認事實" value={caseItem.confirmed_facts} tone="success" />
-          <FieldCard
-            label="目前可能解釋"
-            value={caseItem.possible_explanations}
-            tone="info"
-          />
+          <FieldCard label="目前可能解釋" value={caseItem.possible_explanations} tone="info" />
           <FieldCard label="未支持主張" value={caseItem.unsupported_claims} tone="warning" />
           <FieldCard label="證據與材料" value={caseItem.evidence_list} tone="neutral" />
           <FieldCard label="待確認問題" value={caseItem.open_questions} tone="neutral" />
+        </section>
+
+        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
+                Reference Links
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">參考連結</h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+              這裡適合集中放外部文章、原始貼文、整理串、雲端文件等可直接點開的連結。
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <ReferenceLinks value={caseItem.reference_links} />
+          </div>
         </section>
 
         <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
@@ -340,6 +354,41 @@ function FormattedText({ value, tone }: { value: string; tone: CardTone }) {
   }
 
   return <p className="whitespace-pre-wrap text-base leading-8 text-[var(--color-text)]">{content}</p>;
+}
+
+function ReferenceLinks({ value }: { value: string }) {
+  const lines = value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    return (
+      <div className="rounded-[1.5rem] border border-dashed border-white/15 p-6 text-sm leading-7 text-[var(--color-text-muted)]">
+        目前還沒有參考連結。
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-3">
+      {lines.map((line) => {
+        const href = /^https?:\/\//i.test(line) ? line : `https://${line}`;
+
+        return (
+          <a
+            key={line}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
+          >
+            {line}
+          </a>
+        );
+      })}
+    </div>
+  );
 }
 
 function formatDate(value: string) {

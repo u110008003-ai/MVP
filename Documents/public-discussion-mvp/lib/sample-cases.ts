@@ -32,6 +32,10 @@ export const sampleCases: CaseRecord[] = [
       "- 能對照時間順序的截圖或畫面。",
       "- 後續整理者提出的比對資料與討論串。",
     ].join("\n"),
+    reference_links: [
+      "https://example.com/source-post",
+      "https://example.com/timeline-thread",
+    ].join("\n"),
     open_questions: [
       "- 最早的原始來源是誰？",
       "- 不同版本說法之間，哪些其實是在描述同一件事，哪些不是？",

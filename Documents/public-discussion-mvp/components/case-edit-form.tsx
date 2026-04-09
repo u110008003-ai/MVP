@@ -3,8 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
-import { getApiErrorMessage } from "@/lib/api-error";
 import { getSupabaseBrowserClient } from "@/lib/auth-client";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { roleMeetsRequirement } from "@/lib/roles";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
 
@@ -22,6 +22,7 @@ const fieldLabel: Record<FieldKey, string> = {
   possible_explanations: "目前可能解釋",
   unsupported_claims: "未支持主張",
   evidence_list: "證據與材料",
+  reference_links: "參考連結",
   open_questions: "待確認問題",
   summary_image_url: "總整理圖網址",
   summary_image_note: "總整理圖說明",
@@ -47,6 +48,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     possible_explanations: caseItem.possible_explanations,
     unsupported_claims: caseItem.unsupported_claims,
     evidence_list: caseItem.evidence_list,
+    reference_links: caseItem.reference_links,
     open_questions: caseItem.open_questions,
     summary_image_url: caseItem.summary_image_url,
     summary_image_note: caseItem.summary_image_note,
@@ -124,8 +126,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         return;
       }
 
-      const publicUrlResult = storage.getPublicUrl(filePath);
-      const publicUrl = publicUrlResult.data.publicUrl;
+      const publicUrl = storage.getPublicUrl(filePath).data.publicUrl;
 
       setForm((current) => ({
         ...current,
@@ -281,6 +282,13 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         label={fieldLabel.evidence_list}
         value={form.evidence_list}
         onChange={(value) => updateField("evidence_list", value)}
+      />
+
+      <Field
+        label={fieldLabel.reference_links}
+        hint="一行放一個連結，網址可以是文章、貼文、文件、資料來源。"
+        value={form.reference_links}
+        onChange={(value) => updateField("reference_links", value)}
       />
 
       <Field

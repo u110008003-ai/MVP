@@ -12,6 +12,7 @@ export type CaseRecord = {
   possible_explanations: string;
   unsupported_claims: string;
   evidence_list: string;
+  reference_links: string;
   open_questions: string;
   summary_image_url: string;
   summary_image_note: string;
@@ -27,6 +28,7 @@ export type CaseUpdatePayload = Pick<
   | "possible_explanations"
   | "unsupported_claims"
   | "evidence_list"
+  | "reference_links"
   | "open_questions"
   | "narrative_timeline"
   | "summary_image_url"
