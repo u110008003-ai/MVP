@@ -3,6 +3,14 @@
 :root {
   --background: #f6f2ea;
   --foreground: #1c1917;
+  --color-text: #cdccca;
+  --color-text-muted: #9f9b95;
+  --color-surface-deep: #171614;
+  --color-surface-main: #1c1b19;
+  --color-surface-card: #242320;
+  --color-gold: #e8af34;
+  --color-success: #6daa45;
+  --color-warning: #bb653b;
 }
 
 @theme inline {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
@@ -26,6 +27,7 @@ const transferPresets: Array<{ source: FieldKey; target: FieldKey }> = [
 ];
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
+  const router = useRouter();
   const { session, profile } = useAuth();
   const [form, setForm] = useState<CaseUpdatePayload>({
     stable_conclusion: caseItem.stable_conclusion,
@@ -35,7 +37,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     open_questions: caseItem.open_questions,
   });
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isSaving, startSaveTransition] = useTransition();
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   function updateField<K extends FieldKey>(field: K, value: CaseUpdatePayload[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -83,7 +86,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    startTransition(async () => {
+    startSaveTransition(async () => {
       const response = await fetch(`/api/cases/${caseItem.id}`, {
         method: "PATCH",
         headers: {
@@ -104,11 +107,55 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     });
   }
 
+  function handleDeleteCase() {
+    setFeedback(null);
+
+    if (!session?.access_token) {
+      setFeedback("請先登入後再刪除。");
+      return;
+    }
+
+    if (profile?.role !== "level_3") {
+      setFeedback("只有 Level 3 可以刪除 case。");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `你確定要刪除「${caseItem.title}」嗎？\n這個動作無法復原。`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    startDeleteTransition(async () => {
+      const response = await fetch(`/api/cases/${caseItem.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = (await response.json()) as { code?: string; error?: string; message?: string };
+
+      if (!response.ok) {
+        setFeedback(getApiErrorMessage(data, response.status));
+        return;
+      }
+
+      router.push("/");
+      router.refresh();
+    });
+  }
+
   return (
     <form onSubmit={handleSubmit} className="grid gap-5">
       <section className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
           Block Mixer
+        </p>
+        <p className="mt-2 text-sm leading-7 text-stone-700">
+          快速把不同區塊內容附加到其他欄位，方便整理草稿。
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {transferPresets.map((preset) => (
@@ -124,19 +171,49 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         </div>
       </section>
 
-      <Field label={fieldLabel.stable_conclusion} value={form.stable_conclusion} onChange={(value) => updateField("stable_conclusion", value)} minHeight="min-h-28" />
-      <Field label={fieldLabel.confirmed_facts} value={form.confirmed_facts} onChange={(value) => updateField("confirmed_facts", value)} />
-      <Field label={fieldLabel.unsupported_claims} value={form.unsupported_claims} onChange={(value) => updateField("unsupported_claims", value)} />
-      <Field label={fieldLabel.evidence_list} value={form.evidence_list} onChange={(value) => updateField("evidence_list", value)} />
-      <Field label={fieldLabel.open_questions} value={form.open_questions} onChange={(value) => updateField("open_questions", value)} />
+      <Field
+        label={fieldLabel.stable_conclusion}
+        value={form.stable_conclusion}
+        onChange={(value) => updateField("stable_conclusion", value)}
+        minHeight="min-h-28"
+      />
+      <Field
+        label={fieldLabel.confirmed_facts}
+        value={form.confirmed_facts}
+        onChange={(value) => updateField("confirmed_facts", value)}
+      />
+      <Field
+        label={fieldLabel.unsupported_claims}
+        value={form.unsupported_claims}
+        onChange={(value) => updateField("unsupported_claims", value)}
+      />
+      <Field
+        label={fieldLabel.evidence_list}
+        value={form.evidence_list}
+        onChange={(value) => updateField("evidence_list", value)}
+      />
+      <Field
+        label={fieldLabel.open_questions}
+        value={form.open_questions}
+        onChange={(value) => updateField("open_questions", value)}
+      />
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={handleDeleteCase}
+          disabled={isSaving || isDeleting}
+          className="inline-flex items-center justify-center rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+        >
+          {isDeleting ? "刪除中..." : "刪除案件"}
+        </button>
+
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isSaving || isDeleting}
           className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
         >
-          {isPending ? "儲存中..." : "儲存 Case"}
+          {isSaving ? "儲存中..." : "儲存 Case"}
         </button>
       </div>
 

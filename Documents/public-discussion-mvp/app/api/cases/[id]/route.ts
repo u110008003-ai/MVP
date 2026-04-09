@@ -124,6 +124,46 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 }
 
+export async function DELETE(request: Request, context: RouteContext) {
+  const auth = await requireRole(request, "level_3");
+
+  if (!auth.actor || auth.response) {
+    return auth.response ?? NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  const { id } = await context.params;
+  const supabase = getSupabaseServerClient();
+
+  if (!supabase) {
+    return NextResponse.json(
+      { error: "Server is missing Supabase environment settings." },
+      { status: 500 },
+    );
+  }
+
+  const casesTable = supabase.from("cases") as unknown as {
+    delete: () => {
+      eq: (
+        column: string,
+        value: string,
+      ) => PromiseLike<{ error: { message: string } | null }>;
+    };
+  };
+
+  const { error } = await casesTable.delete().eq("id", id);
+
+  if (error) {
+    return NextResponse.json(
+      { error: `Failed to delete case: ${error.message}` },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({
+    message: "Case deleted successfully.",
+  });
+}
+
 function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) {
   const fieldLabels: Record<keyof CaseUpdatePayload, string> = {
     stable_conclusion: "Stable conclusion",
