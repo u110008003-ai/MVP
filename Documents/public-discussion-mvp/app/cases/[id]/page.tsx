@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseRoleActions } from "@/components/case-role-actions";
 import { SubmissionPanel } from "@/components/submission-panel";
+import { TimelineExplorer } from "@/components/timeline-explorer";
 import {
   getAcceptedSubmissionsForCase,
   getCaseById,
@@ -25,7 +26,7 @@ const statusLabel: Record<CaseStatus, string> = {
 
 const submissionTypeLabel: Record<SubmissionType, string> = {
   evidence: "證據",
-  error: "修正",
+  error: "錯誤指認",
   inference: "推論",
 };
 
@@ -48,7 +49,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           href="/"
           className="inline-flex w-fit rounded-full border border-white/15 px-4 py-2 text-sm text-[var(--color-text-muted)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
         >
-          回到首頁
+          返回首頁
         </Link>
 
         <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-8 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.7)]">
@@ -97,11 +98,64 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </section>
         ) : null}
 
+        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
+                Narrative
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
+                事件來龍去脈
+              </h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+              這個區塊會把整件事拆成多行，每一行都能單獨點開檢視，方便逐段討論。
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <TimelineExplorer value={caseItem.narrative_timeline} />
+          </div>
+        </section>
+
         <section className="grid gap-4 md:grid-cols-2">
           <FieldCard label="已確認事實" value={caseItem.confirmed_facts} tone="success" />
           <FieldCard label="未支持主張" value={caseItem.unsupported_claims} tone="warning" />
-          <FieldCard label="證據清單" value={caseItem.evidence_list} tone="neutral" />
-          <FieldCard label="開放問題" value={caseItem.open_questions} tone="neutral" />
+          <FieldCard label="證據與材料" value={caseItem.evidence_list} tone="neutral" />
+          <FieldCard label="待確認問題" value={caseItem.open_questions} tone="neutral" />
+        </section>
+
+        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
+                Overview Graphic
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">總整理圖</h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+              可以放流程圖、關係圖、時間軸整理圖，讓第一次進來的人先快速看懂整體脈絡。
+            </p>
+          </div>
+
+          {caseItem.summary_image_url ? (
+            <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[var(--color-surface-card)] p-4">
+              <img
+                src={caseItem.summary_image_url}
+                alt={`${caseItem.title} 總整理圖`}
+                className="w-full rounded-[1rem] border border-white/10 object-contain"
+              />
+              {caseItem.summary_image_note ? (
+                <p className="mt-4 text-sm leading-7 text-[var(--color-text-muted)]">
+                  {caseItem.summary_image_note}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-6 rounded-[1.5rem] border border-dashed border-white/15 p-6 text-sm leading-7 text-[var(--color-text-muted)]">
+              目前還沒有放總整理圖。你可以到案件編輯頁補上一張圖片網址和圖說。
+            </div>
+          )}
         </section>
 
         <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
@@ -111,7 +165,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
                 Accepted Submissions
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                已接受補充內容
+                已採納的補充內容
               </h2>
             </div>
 
@@ -127,7 +181,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           <div className="mt-6 grid gap-3">
             {acceptedSubmissions.length === 0 ? (
               <div className="rounded-[1.25rem] border border-dashed border-white/15 p-5 text-sm leading-7 text-[var(--color-text-muted)]">
-                目前沒有已接受 submissions。
+                目前還沒有已採納的 submissions。
               </div>
             ) : (
               acceptedSubmissions.map((submission) => (
@@ -137,7 +191,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-[color-mix(in_oklch,#6daa45_22%,#1c1b19)] px-3 py-1 text-xs font-semibold text-[var(--color-success)]">
-                      已接受
+                      已採納
                     </span>
                     <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
                       {submissionTypeLabel[submission.type]}
@@ -182,7 +236,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           <div className="mt-6 grid gap-3">
             {revisions.length === 0 ? (
               <div className="rounded-[1.25rem] border border-dashed border-white/15 p-5 text-sm leading-7 text-[var(--color-text-muted)]">
-                目前沒有修訂紀錄。
+                目前還沒有修訂紀錄。
               </div>
             ) : (
               revisions.map((revision) => (
@@ -278,7 +332,7 @@ function FormattedText({ value, tone }: { value: string; tone: CardTone }) {
   const content = value?.trim();
 
   if (!content) {
-    return <p className="text-base leading-8 text-[var(--color-text-muted)]">（空）</p>;
+    return <p className="text-base leading-8 text-[var(--color-text-muted)]">尚未整理</p>;
   }
 
   const lines = content

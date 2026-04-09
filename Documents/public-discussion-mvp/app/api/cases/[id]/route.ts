@@ -9,6 +9,22 @@ type RouteContext = {
   }>;
 };
 
+const caseColumns = [
+  "id",
+  "title",
+  "question",
+  "narrative_timeline",
+  "stable_conclusion",
+  "confirmed_facts",
+  "unsupported_claims",
+  "evidence_list",
+  "open_questions",
+  "summary_image_url",
+  "summary_image_note",
+  "status",
+  "updated_at",
+].join(", ");
+
 export async function PATCH(request: Request, context: RouteContext) {
   const auth = await requireRole(request, "level_3");
 
@@ -18,7 +34,6 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   const body = (await request.json()) as Partial<CaseUpdatePayload>;
-
   const supabase = getSupabaseServerClient();
 
   if (!supabase) {
@@ -39,12 +54,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     };
   };
 
-  const existingCaseResult = await casesReader
-    .select(
-      "id, title, question, stable_conclusion, confirmed_facts, unsupported_claims, evidence_list, open_questions, status, updated_at",
-    )
-    .eq("id", id)
-    .single();
+  const existingCaseResult = await casesReader.select(caseColumns).eq("id", id).single();
 
   if (existingCaseResult.error || !existingCaseResult.data) {
     return NextResponse.json(
@@ -56,11 +66,14 @@ export async function PATCH(request: Request, context: RouteContext) {
   const existingCase = existingCaseResult.data;
 
   const payload: CaseUpdatePayload = {
+    narrative_timeline: body.narrative_timeline?.trim() ?? "",
     stable_conclusion: body.stable_conclusion?.trim() ?? "",
     confirmed_facts: body.confirmed_facts?.trim() ?? "",
     unsupported_claims: body.unsupported_claims?.trim() ?? "",
     evidence_list: body.evidence_list?.trim() ?? "",
     open_questions: body.open_questions?.trim() ?? "",
+    summary_image_url: body.summary_image_url?.trim() ?? "",
+    summary_image_note: body.summary_image_note?.trim() ?? "",
   };
 
   const casesTable = supabase.from("cases") as unknown as {
@@ -93,14 +106,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       }) => PromiseLike<{ error: { message: string } | null }>;
     };
 
-    const revisionSummary = `Updated fields: ${changedFields
-      .map((field) => field.label)
-      .join(", ")}`;
+    const revisionSummary = `更新欄位：${changedFields.map((field) => field.label).join("、")}`;
     const revisionDetail = changedFields
       .map((field) => {
         const before = readableValue(existingCase[field.key]);
         const after = readableValue(payload[field.key]);
-        return `${field.label}\nBefore: ${before}\nAfter: ${after}`;
+        return `${field.label}\n變更前：${before}\n變更後：${after}`;
       })
       .join("\n\n");
 
@@ -120,7 +131,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   return NextResponse.json({
-    message: "Case updated successfully.",
+    message: "案件已更新。",
   });
 }
 
@@ -160,17 +171,20 @@ export async function DELETE(request: Request, context: RouteContext) {
   }
 
   return NextResponse.json({
-    message: "Case deleted successfully.",
+    message: "案件已刪除。",
   });
 }
 
 function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) {
   const fieldLabels: Record<keyof CaseUpdatePayload, string> = {
-    stable_conclusion: "Stable conclusion",
-    confirmed_facts: "Confirmed facts",
-    unsupported_claims: "Unsupported claims",
-    evidence_list: "Evidence list",
-    open_questions: "Open questions",
+    narrative_timeline: "事件來龍去脈",
+    stable_conclusion: "穩定結論",
+    confirmed_facts: "已確認事實",
+    unsupported_claims: "未支持主張",
+    evidence_list: "證據與材料",
+    open_questions: "待確認問題",
+    summary_image_url: "總整理圖網址",
+    summary_image_note: "總整理圖說明",
   };
 
   return (Object.keys(fieldLabels) as Array<keyof CaseUpdatePayload>)
@@ -182,5 +196,5 @@ function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) 
 }
 
 function readableValue(value: string) {
-  return value.trim() ? value : "(empty)";
+  return value.trim() ? value : "(空白)";
 }

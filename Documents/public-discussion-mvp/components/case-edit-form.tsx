@@ -14,28 +14,35 @@ type CaseEditFormProps = {
 type FieldKey = keyof CaseUpdatePayload;
 
 const fieldLabel: Record<FieldKey, string> = {
+  narrative_timeline: "事件來龍去脈",
   stable_conclusion: "穩定結論",
   confirmed_facts: "已確認事實",
   unsupported_claims: "未支持主張",
-  evidence_list: "證據清單",
-  open_questions: "開放問題",
+  evidence_list: "證據與材料",
+  open_questions: "待確認問題",
+  summary_image_url: "總整理圖網址",
+  summary_image_note: "總整理圖說明",
 };
 
 const transferPresets: Array<{ source: FieldKey; target: FieldKey }> = [
   { source: "evidence_list", target: "stable_conclusion" },
   { source: "confirmed_facts", target: "stable_conclusion" },
   { source: "open_questions", target: "unsupported_claims" },
+  { source: "narrative_timeline", target: "stable_conclusion" },
 ];
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const router = useRouter();
   const { session, profile } = useAuth();
   const [form, setForm] = useState<CaseUpdatePayload>({
+    narrative_timeline: caseItem.narrative_timeline,
     stable_conclusion: caseItem.stable_conclusion,
     confirmed_facts: caseItem.confirmed_facts,
     unsupported_claims: caseItem.unsupported_claims,
     evidence_list: caseItem.evidence_list,
     open_questions: caseItem.open_questions,
+    summary_image_url: caseItem.summary_image_url,
+    summary_image_note: caseItem.summary_image_note,
   });
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSaving, startSaveTransition] = useTransition();
@@ -49,28 +56,26 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     const sourceContent = form[source].trim();
 
     if (!sourceContent) {
-      setFeedback(`來源欄位「${fieldLabel[source]}」是空的。`);
+      setFeedback(`目前「${fieldLabel[source]}」是空的，還沒有可轉移的內容。`);
       return;
     }
 
     if (source === target) {
-      setFeedback("來源與目標欄位不能相同。");
+      setFeedback("來源欄位和目標欄位不能是同一個。");
       return;
     }
 
     setForm((current) => {
       const targetContent = current[target].trim();
-      const sourceBlock = `\n\n[來自 ${fieldLabel[source]}]\n${sourceContent}`;
+      const sourceBlock = `[轉入自 ${fieldLabel[source]}]\n${sourceContent}`;
 
       return {
         ...current,
-        [target]: targetContent
-          ? `${targetContent}${sourceBlock}`
-          : `[來自 ${fieldLabel[source]}]\n${sourceContent}`,
+        [target]: targetContent ? `${targetContent}\n\n${sourceBlock}` : sourceBlock,
       };
     });
 
-    setFeedback(`已將「${fieldLabel[source]}」附加到「${fieldLabel[target]}」。`);
+    setFeedback(`已把「${fieldLabel[source]}」的內容附加到「${fieldLabel[target]}」。`);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -78,12 +83,12 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     setFeedback(null);
 
     if (!session?.access_token) {
-      setFeedback("請先登入後再儲存。");
+      setFeedback("請先登入後再儲存案件內容。");
       return;
     }
 
     if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
-      setFeedback("只有 Level 3 可以更新 case。");
+      setFeedback("只有 Level 3 以上帳號可以編輯案件。");
       return;
     }
 
@@ -104,7 +109,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         return;
       }
 
-      setFeedback(data.message ?? "Case 已更新。");
+      setFeedback(data.message ?? "案件已儲存。");
+      router.refresh();
     });
   }
 
@@ -112,17 +118,17 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     setFeedback(null);
 
     if (!session?.access_token) {
-      setFeedback("請先登入後再刪除。");
+      setFeedback("請先登入後再刪除案件。");
       return;
     }
 
     if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
-      setFeedback("只有 Level 3 可以刪除 case。");
+      setFeedback("只有 Level 3 以上帳號可以刪除案件。");
       return;
     }
 
     const confirmed = window.confirm(
-      `你確定要刪除「${caseItem.title}」嗎？\n這個動作無法復原。`,
+      `你確定要刪除「${caseItem.title}」嗎？\n刪除後資料無法復原。`,
     );
 
     if (!confirmed) {
@@ -153,10 +159,10 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     <form onSubmit={handleSubmit} className="grid gap-5">
       <section className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-          Block Mixer
+          內容搬運
         </p>
         <p className="mt-2 text-sm leading-7 text-stone-700">
-          快速把不同區塊內容附加到其他欄位，方便整理草稿。
+          如果某個欄位已經整理得差不多，可以先搬到另一個欄位，再做後續精修。
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {transferPresets.map((preset) => (
@@ -166,11 +172,19 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
               onClick={() => transferField(preset.source, preset.target)}
               className="rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:bg-white"
             >
-              {fieldLabel[preset.source]} to {fieldLabel[preset.target]}
+              {fieldLabel[preset.source]} {"->"} {fieldLabel[preset.target]}
             </button>
           ))}
         </div>
       </section>
+
+      <Field
+        label={fieldLabel.narrative_timeline}
+        hint="建議一行寫一個時間點、人物行動或重要轉折。"
+        value={form.narrative_timeline}
+        onChange={(value) => updateField("narrative_timeline", value)}
+        minHeight="min-h-40"
+      />
 
       <Field
         label={fieldLabel.stable_conclusion}
@@ -178,25 +192,45 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         onChange={(value) => updateField("stable_conclusion", value)}
         minHeight="min-h-28"
       />
+
       <Field
         label={fieldLabel.confirmed_facts}
         value={form.confirmed_facts}
         onChange={(value) => updateField("confirmed_facts", value)}
       />
+
       <Field
         label={fieldLabel.unsupported_claims}
         value={form.unsupported_claims}
         onChange={(value) => updateField("unsupported_claims", value)}
       />
+
       <Field
         label={fieldLabel.evidence_list}
         value={form.evidence_list}
         onChange={(value) => updateField("evidence_list", value)}
       />
+
       <Field
         label={fieldLabel.open_questions}
         value={form.open_questions}
         onChange={(value) => updateField("open_questions", value)}
+      />
+
+      <Field
+        label={fieldLabel.summary_image_url}
+        hint="貼上圖片網址後，案件頁就會顯示總整理圖。"
+        value={form.summary_image_url}
+        onChange={(value) => updateField("summary_image_url", value)}
+        minHeight="min-h-0"
+      />
+
+      <Field
+        label={fieldLabel.summary_image_note}
+        hint="可以補充圖的來源、閱讀方式或一句總結。"
+        value={form.summary_image_note}
+        onChange={(value) => updateField("summary_image_note", value)}
+        minHeight="min-h-24"
       />
 
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -214,7 +248,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           disabled={isSaving || isDeleting}
           className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
         >
-          {isSaving ? "儲存中..." : "儲存 Case"}
+          {isSaving ? "儲存中..." : "儲存案件"}
         </button>
       </div>
 
@@ -229,11 +263,13 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
 function Field({
   label,
+  hint,
   value,
   onChange,
   minHeight = "min-h-40",
 }: {
   label: string;
+  hint?: string;
   value: string;
   onChange: (value: string) => void;
   minHeight?: string;
@@ -241,6 +277,7 @@ function Field({
   return (
     <label className="grid gap-2">
       <span className="text-sm font-medium text-stone-700">{label}</span>
+      {hint ? <span className="text-xs leading-6 text-stone-500">{hint}</span> : null}
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}

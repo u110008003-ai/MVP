@@ -7,6 +7,9 @@ import {
   SubmissionRecord,
 } from "@/lib/types";
 
+const caseColumns =
+  "id, title, question, narrative_timeline, stable_conclusion, confirmed_facts, unsupported_claims, evidence_list, open_questions, summary_image_url, summary_image_note, status, updated_at";
+
 export async function getCases() {
   const supabase = getSupabaseServerClient();
   const isProduction = process.env.NODE_ENV === "production";
@@ -21,9 +24,7 @@ export async function getCases() {
 
   const { data, error } = await supabase
     .from("cases")
-    .select(
-      "id, title, question, stable_conclusion, confirmed_facts, unsupported_claims, evidence_list, open_questions, status, updated_at",
-    )
+    .select(caseColumns)
     .order("updated_at", { ascending: false });
 
   if (error) {

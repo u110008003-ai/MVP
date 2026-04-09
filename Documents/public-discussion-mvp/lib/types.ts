@@ -6,11 +6,14 @@ export type CaseRecord = {
   id: string;
   title: string;
   question: string;
+  narrative_timeline: string;
   stable_conclusion: string;
   confirmed_facts: string;
   unsupported_claims: string;
   evidence_list: string;
   open_questions: string;
+  summary_image_url: string;
+  summary_image_note: string;
   status: CaseStatus;
   updated_at: string;
 };
@@ -22,6 +25,9 @@ export type CaseUpdatePayload = Pick<
   | "unsupported_claims"
   | "evidence_list"
   | "open_questions"
+  | "narrative_timeline"
+  | "summary_image_url"
+  | "summary_image_note"
 >;
 
 export type SubmissionPayload = {
