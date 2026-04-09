@@ -14,12 +14,12 @@ export default async function ProposalsPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">
-              提案區
+              Proposal Drafts
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-950">提交新議題</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-stone-950">提案草稿池</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
-              當一個議題已經有明確的公共討論價值，但目前首頁還沒有對應案件時，可以先在這裡提出 proposal，
-              交由更高權限角色審查後升格為正式 case。
+              proposal 頁現在也和 case 一樣分成多個板塊，只是它還在草稿階段。
+              你可以先把核心問題、來龍去脈、已知事實、待查主張整理好，等內容成熟後再升格成正式案件。
             </p>
           </div>
 
@@ -27,29 +27,29 @@ export default async function ProposalsPage() {
             href="/"
             className="inline-flex w-fit rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:text-stone-950"
           >
-            回首頁
+            返回首頁
           </Link>
         </div>
 
         <section className="grid gap-4 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_60px_-35px_rgba(41,37,36,0.35)] md:grid-cols-3">
           <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-            <h2 className="text-base font-semibold text-stone-950">什麼議題值得提案</h2>
+            <h2 className="text-base font-semibold text-stone-950">先整理，再升格</h2>
             <p className="mt-2 text-sm leading-7 text-stone-600">
-              議題具有公共影響、已有一些可整理的資訊線索，且值得被持續追蹤與修正。
+              proposal 適合用來先整理議題輪廓，不用一開始就把所有證據都補齊，但至少要讓人看得懂你想討論什麼。
             </p>
           </article>
 
           <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-            <h2 className="text-base font-semibold text-stone-950">提案時應寫什麼</h2>
+            <h2 className="text-base font-semibold text-stone-950">板塊式草稿</h2>
             <p className="mt-2 text-sm leading-7 text-stone-600">
-              清楚說明核心問題、為什麼值得討論、目前可見的爭點，以及未來可能需要哪些證據。
+              提案會用和 case 類似的板塊呈現，包含核心問題、來龍去脈、已確認事實、待查主張與材料整理。
             </p>
           </article>
 
           <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-            <h2 className="text-base font-semibold text-stone-950">提案之後會怎樣</h2>
+            <h2 className="text-base font-semibold text-stone-950">升格規則</h2>
             <p className="mt-2 text-sm leading-7 text-stone-600">
-              Level 2 以上可送出提案，Level 3 以上可審查並將提案升格為正式案件。
+              Level 2 可以建立與補充提案，Level 3 可以檢查是否成熟，並決定是否升格成正式案件。
             </p>
           </article>
         </section>
@@ -65,9 +65,9 @@ export default async function ProposalsPage() {
         <section className="grid gap-2">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-              已提交提案
+              提案列表
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-stone-950">等待審查與升格</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-stone-950">目前所有草稿提案</h2>
           </div>
           <ProposalsBoard initialProposals={proposals} />
         </section>
