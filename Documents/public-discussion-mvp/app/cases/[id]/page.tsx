@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseRoleActions } from "@/components/case-role-actions";
+import { RevisionsPanel } from "@/components/revisions-panel";
 import { SubmissionPanel } from "@/components/submission-panel";
 import { TimelineExplorer } from "@/components/timeline-explorer";
 import {
@@ -221,43 +222,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
-            Revision History
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">修訂紀錄</h2>
-
-          {revisionsError ? (
-            <div className="mt-5 rounded-[1.25rem] border border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#1c1b19)] px-4 py-3 text-sm leading-7 text-[var(--color-text)]">
-              {revisionsError}
-            </div>
-          ) : null}
-
-          <div className="mt-6 grid gap-3">
-            {revisions.length === 0 ? (
-              <div className="rounded-[1.25rem] border border-dashed border-white/15 p-5 text-sm leading-7 text-[var(--color-text-muted)]">
-                目前還沒有修訂紀錄。
-              </div>
-            ) : (
-              revisions.map((revision) => (
-                <article
-                  key={revision.id}
-                  className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] p-5"
-                >
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <h3 className="text-lg font-semibold text-[var(--color-text)]">{revision.summary}</h3>
-                    <span className="text-sm text-[var(--color-text-muted)]">
-                      {formatDateTime(revision.created_at)}
-                    </span>
-                  </div>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[var(--color-text)]">
-                    {revision.detail}
-                  </p>
-                </article>
-              ))
-            )}
-          </div>
-        </section>
+        <RevisionsPanel revisions={revisions} error={revisionsError} />
 
         <SubmissionPanel caseId={caseItem.id} />
       </div>
@@ -377,21 +342,5 @@ function formatDate(value: string) {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(date);
-}
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "未知";
-  }
-
-  return new Intl.DateTimeFormat("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
   }).format(date);
 }
