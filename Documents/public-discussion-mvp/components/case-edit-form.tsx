@@ -57,6 +57,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [isUploadingImage, startUploadTransition] = useTransition();
+  const canDeleteCase = Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
 
   function updateField<K extends FieldKey>(field: K, value: CaseUpdatePayload[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -180,8 +181,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
-      setFeedback("只有 Level 3 以上帳號可以刪除案件。");
+    if (!canDeleteCase) {
+      setFeedback("只有 Level 4 隱藏管理員可以刪除案件。");
       return;
     }
 
@@ -344,14 +345,16 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       />
 
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <button
-          type="button"
-          onClick={handleDeleteCase}
-          disabled={isSaving || isDeleting || isUploadingImage}
-          className="inline-flex items-center justify-center rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
-        >
-          {isDeleting ? "刪除中..." : "刪除案件"}
-        </button>
+        {canDeleteCase ? (
+          <button
+            type="button"
+            onClick={handleDeleteCase}
+            disabled={isSaving || isDeleting || isUploadingImage}
+            className="inline-flex items-center justify-center rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+          >
+            {isDeleting ? "刪除中..." : "刪除案件"}
+          </button>
+        ) : null}
 
         <button
           type="submit"

@@ -1,14 +1,37 @@
 drop policy if exists "Anyone can update cases" on public.cases;
-create policy "Anyone can update cases"
+drop policy if exists "Level 3 can update cases" on public.cases;
+create policy "Level 3 can update cases"
 on public.cases
 for update
-to anon, authenticated
-using (true)
-with check (true);
+to authenticated
+using (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role in ('level_3', 'level_4')
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role in ('level_3', 'level_4')
+  )
+);
 
 drop policy if exists "Anyone can delete cases" on public.cases;
-create policy "Anyone can delete cases"
+drop policy if exists "Level 4 can delete cases" on public.cases;
+create policy "Level 4 can delete cases"
 on public.cases
 for delete
-to anon, authenticated
-using (true);
+to authenticated
+using (
+  exists (
+    select 1
+    from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'level_4'
+  )
+);
