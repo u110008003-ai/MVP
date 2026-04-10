@@ -148,6 +148,17 @@ export default async function Home() {
                       {caseItem.title}
                     </h3>
 
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <AttributionPill
+                        label="提案者"
+                        value={caseItem.created_by_profile?.display_name || "尚未紀錄"}
+                      />
+                      <AttributionPill
+                        label="升格者"
+                        value={caseItem.promoted_by_profile?.display_name || "尚未紀錄"}
+                      />
+                    </div>
+
                     <p className="mt-3 text-sm font-medium uppercase tracking-[0.24em] text-stone-500">
                       穩定結論
                     </p>
@@ -169,6 +180,14 @@ export default async function Home() {
         </section>
       </div>
     </main>
+  );
+}
+
+function AttributionPill({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="inline-flex rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold text-stone-600">
+      {label}：<span className="ml-1 text-stone-900">{value}</span>
+    </span>
   );
 }
 
