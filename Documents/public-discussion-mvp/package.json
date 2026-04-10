@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "research:mens-fashion": "node scripts/collect-mens-fashion-comparison.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.102.1",
