@@ -9,7 +9,9 @@ for select
 to public
 using (bucket_id = 'case-assets');
 
-create policy "Level 3 can upload case assets"
+drop policy if exists "Level 3 can upload case assets" on storage.objects;
+drop policy if exists "Level 4 can upload case assets" on storage.objects;
+create policy "Level 4 can upload case assets"
 on storage.objects
 for insert
 to authenticated
@@ -19,6 +21,6 @@ with check (
     select 1
     from public.profiles
     where profiles.id = auth.uid()
-      and profiles.role in ('level_3', 'level_4')
+      and profiles.role = 'level_4'
   )
 );

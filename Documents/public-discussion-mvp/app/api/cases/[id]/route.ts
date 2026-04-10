@@ -28,7 +28,7 @@ const caseColumns = [
 ].join(", ");
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireRole(request, "level_3");
+  const auth = await requireRole(request, "level_4");
 
   if (!auth.actor || auth.response) {
     return auth.response ?? NextResponse.json({ error: "Unauthorized." }, { status: 401 });

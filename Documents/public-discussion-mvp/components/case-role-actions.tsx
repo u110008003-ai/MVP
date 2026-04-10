@@ -6,6 +6,8 @@ import { roleMeetsRequirement } from "@/lib/roles";
 
 export function CaseRoleActions({ caseId }: { caseId: string }) {
   const { loading, profile } = useAuth();
+  const canEditCases = Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
+  const canManageSubmissions = Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_3"));
 
   if (loading) {
     return (
@@ -15,24 +17,28 @@ export function CaseRoleActions({ caseId }: { caseId: string }) {
     );
   }
 
-  if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
+  if (!canEditCases && !canManageSubmissions) {
     return null;
   }
 
   return (
     <>
-      <Link
-        href={`/cases/${caseId}/edit`}
-        className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 transition hover:border-amber-400 hover:text-amber-300"
-      >
-        編輯 Case
-      </Link>
-      <Link
-        href="/admin/submissions"
-        className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 transition hover:border-amber-400 hover:text-amber-300"
-      >
-        管理 Submissions
-      </Link>
+      {canEditCases ? (
+        <Link
+          href={`/cases/${caseId}/edit`}
+          className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 transition hover:border-amber-400 hover:text-amber-300"
+        >
+          編輯 Case
+        </Link>
+      ) : null}
+      {canManageSubmissions ? (
+        <Link
+          href="/admin/submissions"
+          className="rounded-full border border-stone-700 px-3 py-1 text-sm text-stone-300 transition hover:border-amber-400 hover:text-amber-300"
+        >
+          管理 Submissions
+        </Link>
+      ) : null}
     </>
   );
 }

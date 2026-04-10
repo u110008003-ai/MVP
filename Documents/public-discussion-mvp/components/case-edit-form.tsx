@@ -57,6 +57,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
   const [isUploadingImage, startUploadTransition] = useTransition();
+  const canEditCase = Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
   const canDeleteCase = Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
 
   function updateField<K extends FieldKey>(field: K, value: CaseUpdatePayload[K]) {
@@ -96,8 +97,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    if (!session?.user || !profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
-      setFeedback("只有 Level 3 以上帳號可以上傳案件總整理圖。");
+    if (!session?.user || !canEditCase) {
+      setFeedback("只有 Level 4 隱藏管理員可以上傳或替換案件總整理圖。");
       return;
     }
 
@@ -146,8 +147,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       return;
     }
 
-    if (!profile?.role || !roleMeetsRequirement(profile.role, "level_3")) {
-      setFeedback("只有 Level 3 以上帳號可以編輯案件。");
+    if (!canEditCase) {
+      setFeedback("只有 Level 4 隱藏管理員可以編輯正式案件。");
       return;
     }
 
@@ -228,8 +229,9 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
             <button
               key={`${preset.source}-${preset.target}`}
               type="button"
+              disabled={!canEditCase || isSaving || isDeleting || isUploadingImage}
               onClick={() => transferField(preset.source, preset.target)}
-              className="rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:bg-white"
+              className="rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:bg-white disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
             >
               {fieldLabel[preset.source]} {"->"} {fieldLabel[preset.target]}
             </button>
@@ -243,6 +245,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         value={form.question}
         onChange={(value) => updateField("question", value)}
         minHeight="min-h-28"
+        disabled={!canEditCase}
       />
 
       <Field
@@ -251,6 +254,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         value={form.narrative_timeline}
         onChange={(value) => updateField("narrative_timeline", value)}
         minHeight="min-h-40"
+        disabled={!canEditCase}
       />
 
       <Field
@@ -258,12 +262,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         value={form.stable_conclusion}
         onChange={(value) => updateField("stable_conclusion", value)}
         minHeight="min-h-28"
+        disabled={!canEditCase}
       />
 
       <Field
         label={fieldLabel.confirmed_facts}
         value={form.confirmed_facts}
         onChange={(value) => updateField("confirmed_facts", value)}
+        disabled={!canEditCase}
       />
 
       <Field
@@ -271,18 +277,21 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         hint="把目前這個現象可能有哪些解釋先列出來，和已確認事實分開。"
         value={form.possible_explanations}
         onChange={(value) => updateField("possible_explanations", value)}
+        disabled={!canEditCase}
       />
 
       <Field
         label={fieldLabel.unsupported_claims}
         value={form.unsupported_claims}
         onChange={(value) => updateField("unsupported_claims", value)}
+        disabled={!canEditCase}
       />
 
       <Field
         label={fieldLabel.evidence_list}
         value={form.evidence_list}
         onChange={(value) => updateField("evidence_list", value)}
+        disabled={!canEditCase}
       />
 
       <Field
@@ -290,12 +299,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         hint="一行放一個連結，網址可以是文章、貼文、文件、資料來源。"
         value={form.reference_links}
         onChange={(value) => updateField("reference_links", value)}
+        disabled={!canEditCase}
       />
 
       <Field
         label={fieldLabel.open_questions}
         value={form.open_questions}
         onChange={(value) => updateField("open_questions", value)}
+        disabled={!canEditCase}
       />
 
       <section className="grid gap-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
@@ -311,7 +322,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           <input
             type="file"
             accept="image/*"
-            disabled={isUploadingImage || isSaving || isDeleting}
+            disabled={!canEditCase || isUploadingImage || isSaving || isDeleting}
             onChange={(event) => {
               const file = event.target.files?.[0] ?? null;
               handleImageUpload(file);
@@ -333,6 +344,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           value={form.summary_image_url}
           onChange={(value) => updateField("summary_image_url", value)}
           minHeight="min-h-0"
+          disabled={!canEditCase}
         />
       </section>
 
@@ -342,6 +354,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         value={form.summary_image_note}
         onChange={(value) => updateField("summary_image_note", value)}
         minHeight="min-h-24"
+        disabled={!canEditCase}
       />
 
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -358,7 +371,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
         <button
           type="submit"
-          disabled={isSaving || isDeleting || isUploadingImage}
+          disabled={!canEditCase || isSaving || isDeleting || isUploadingImage}
           className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
         >
           {isSaving ? "儲存中..." : "儲存案件"}
@@ -380,12 +393,14 @@ function Field({
   value,
   onChange,
   minHeight = "min-h-40",
+  disabled = false,
 }: {
   label: string;
   hint?: string;
   value: string;
   onChange: (value: string) => void;
   minHeight?: string;
+  disabled?: boolean;
 }) {
   return (
     <label className="grid gap-2">
@@ -393,8 +408,9 @@ function Field({
       {hint ? <span className="text-xs leading-6 text-stone-500">{hint}</span> : null}
       <textarea
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={`rounded-[1.25rem] border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950 ${minHeight}`}
+        className={`rounded-[1.25rem] border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500 ${minHeight}`}
       />
     </label>
   );
