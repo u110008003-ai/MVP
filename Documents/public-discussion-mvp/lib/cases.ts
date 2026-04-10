@@ -20,9 +20,12 @@ const caseColumns = [
   "created_by",
   "promoted_by",
   "updated_at",
-  "created_by_profile:profiles!cases_created_by_fkey(display_name)",
-  "promoted_by_profile:profiles!cases_promoted_by_fkey(display_name)",
 ].join(", ");
+
+type ProfileNameRecord = {
+  id: string;
+  display_name: string;
+};
 
 export async function getCases() {
   const supabase = getSupabaseServerClient();
@@ -49,8 +52,22 @@ export async function getCases() {
     };
   }
 
+  const cases = (data ?? []) as CaseRecord[];
+  const profileNames = await getProfileNames([
+    ...cases.map((item) => item.created_by),
+    ...cases.map((item) => item.promoted_by),
+  ]);
+
   return {
-    cases: (data ?? []) as CaseRecord[],
+    cases: cases.map((item) => ({
+      ...item,
+      created_by_profile: item.created_by
+        ? { display_name: profileNames.get(item.created_by) ?? "" }
+        : null,
+      promoted_by_profile: item.promoted_by
+        ? { display_name: profileNames.get(item.promoted_by) ?? "" }
+        : null,
+    })),
     source: "supabase" as const,
     error: null,
   };
@@ -166,7 +183,7 @@ export async function getProposals() {
   const { data, error } = await supabase
     .from("proposals")
     .select(
-      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at, profiles:profiles!proposals_user_id_fkey(display_name), reviewed_by_profile:profiles!proposals_reviewed_by_fkey(display_name)",
+      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at",
     )
     .order("created_at", { ascending: false });
 
@@ -177,8 +194,43 @@ export async function getProposals() {
     };
   }
 
+  const proposals = (data ?? []) as ProposalRecord[];
+  const profileNames = await getProfileNames([
+    ...proposals.map((item) => item.user_id),
+    ...proposals.map((item) => item.reviewed_by),
+  ]);
+
   return {
-    proposals: (data ?? []) as ProposalRecord[],
+    proposals: proposals.map((item) => ({
+      ...item,
+      profiles: item.user_id ? { display_name: profileNames.get(item.user_id) ?? "" } : null,
+      reviewed_by_profile: item.reviewed_by
+        ? { display_name: profileNames.get(item.reviewed_by) ?? "" }
+        : null,
+    })),
     error: null,
   };
+}
+
+async function getProfileNames(profileIds: Array<string | null | undefined>) {
+  const ids = Array.from(new Set(profileIds.filter((id): id is string => Boolean(id))));
+  const supabase = getSupabaseServerClient();
+
+  if (!supabase || ids.length === 0) {
+    return new Map<string, string>();
+  }
+
+  const { data, error } = await supabase
+    .from("profile_public_names")
+    .select("id, display_name")
+    .in("id", ids);
+
+  if (error) {
+    return new Map<string, string>();
+  }
+
+  return new Map((data ?? []).map((item) => {
+    const profile = item as ProfileNameRecord;
+    return [profile.id, profile.display_name] as const;
+  }));
 }
