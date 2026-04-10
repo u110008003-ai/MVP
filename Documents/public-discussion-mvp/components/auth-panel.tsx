@@ -2,15 +2,15 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { getSupabaseBrowserClient } from "@/lib/auth-client";
 import { useAuth } from "@/components/auth-provider";
+import { getSupabaseBrowserClient } from "@/lib/auth-client";
 import type { UserRole } from "@/lib/types";
 
 const roleLabel: Record<UserRole, string> = {
   level_1: "Level 1",
   level_2: "Level 2",
   level_3: "Level 3",
-  level_4: "管理員",
+  level_4: "隱藏管理員",
 };
 
 type AuthMode = "sign-in" | "sign-up";
@@ -30,7 +30,7 @@ export function AuthPanel() {
     setFeedback(null);
 
     if (!supabase) {
-      setFeedback("Supabase 尚未設定，現在無法登入。");
+      setFeedback("Supabase 尚未設定完成，暫時無法登入。");
       return;
     }
 
@@ -40,13 +40,13 @@ export function AuthPanel() {
       const normalizedName = displayName.trim();
 
       if (!normalizedEmail || !normalizedPassword) {
-        setFeedback("請輸入 email 和密碼。");
+        setFeedback("請填寫 email 和密碼。");
         return;
       }
 
       if (mode === "sign-up") {
         if (normalizedPassword.length < 6) {
-          setFeedback("密碼至少要 6 個字元。");
+          setFeedback("密碼至少需要 6 個字元。");
           return;
         }
 
@@ -66,9 +66,9 @@ export function AuthPanel() {
         }
 
         if (data.session) {
-          setFeedback("註冊成功，已自動登入。");
+          setFeedback("註冊成功，已登入。");
         } else {
-          setFeedback("註冊成功。若 Supabase 啟用了 email confirmation，請先到信箱完成驗證。");
+          setFeedback("註冊成功。若 Supabase 有開 email 確認，請先到信箱完成確認。");
         }
 
         return;
@@ -100,7 +100,7 @@ export function AuthPanel() {
   }
 
   return (
-    <section className="rounded-[1.75rem] border border-stone-200 bg-white p-5 shadow-[0_12px_40px_-30px_rgba(41,37,36,0.35)]">
+    <section className="rounded-[1.75rem] border border-white/10 bg-white p-5 text-stone-950 shadow-[0_18px_60px_-35px_rgba(0,0,0,0.5)]">
       <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">
         帳號
       </p>
@@ -121,9 +121,9 @@ export function AuthPanel() {
           </div>
 
           <div className="grid gap-2 text-sm leading-7 text-stone-600">
-            <p>Level 1 可提交 evidence / error / inference。</p>
-            <p>Level 2 可提交 proposal。</p>
-            <p>Level 3 可管理 submissions、編輯 case、升格 proposal。</p>
+            <p>Level 1：補充證據、指出錯誤、修正推論</p>
+            <p>Level 2：提出新題目</p>
+            <p>Level 3：整理案件、管理內容、升格結論</p>
           </div>
 
           {profile?.role && (profile.role === "level_3" || profile.role === "level_4") ? (
@@ -195,7 +195,7 @@ export function AuthPanel() {
                 <input
                   value={displayName}
                   onChange={(event) => setDisplayName(event.target.value)}
-                  placeholder="例如 Alice"
+                  placeholder="例如：Alice"
                   className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
                 />
               </label>
@@ -217,19 +217,19 @@ export function AuthPanel() {
               disabled={isPending || !supabaseAvailable}
               className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
             >
-              {isPending ? "處理中..." : mode === "sign-in" ? "用密碼登入" : "建立帳號"}
+              {isPending ? "處理中..." : mode === "sign-in" ? "登入" : "建立帳號"}
             </button>
           </form>
 
           <p className="text-sm leading-7 text-stone-500">
-            現在改成 Email + 密碼登入。若 Supabase 仍開著 email confirmation，第一次註冊可能還是需要收一封確認信。
+            使用 Email + 密碼登入。測試期間如果收不到確認信，可以到 Supabase 關閉 email confirmation。
           </p>
         </div>
       )}
 
       {feedback || !supabaseAvailable ? (
         <div className="mt-4 rounded-[1rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
-          {feedback ?? "Supabase 尚未設定，請先確認環境變數。"}
+          {feedback ?? "Supabase 尚未設定完成，登入功能暫時無法使用。"}
         </div>
       ) : null}
     </section>
