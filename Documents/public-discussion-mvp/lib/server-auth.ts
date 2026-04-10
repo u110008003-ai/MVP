@@ -8,6 +8,7 @@ export type RequestActor = {
   email: string;
   display_name: string;
   role: UserRole;
+  access_token: string;
 };
 
 function getBearerToken(request: Request) {
@@ -99,6 +100,7 @@ export async function authenticateRequest(request: Request) {
       email: profileResult.data.email,
       display_name: profileResult.data.display_name,
       role: profileResult.data.role,
+      access_token: token,
     } satisfies RequestActor,
     response: null,
   };

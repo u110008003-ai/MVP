@@ -87,6 +87,7 @@ export type ProposalRecord = {
   promoted_case_id?: string | null;
   reviewed_by?: string | null;
   created_at: string;
+  updated_at?: string | null;
   profiles?: {
     display_name: string;
   } | null;

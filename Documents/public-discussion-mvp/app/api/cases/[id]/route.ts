@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClientForToken } from "@/lib/supabase";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
 
 type RouteContext = {
@@ -36,7 +36,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params;
   const body = (await request.json()) as Partial<CaseUpdatePayload>;
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
     return NextResponse.json(
@@ -148,7 +148,7 @@ export async function DELETE(request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
     return NextResponse.json(

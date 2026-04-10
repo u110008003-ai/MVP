@@ -5,9 +5,13 @@ import { useState, useTransition } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
+  emptyProposalDraft,
   isStructuredProposalContent,
   parseProposalDraft,
   proposalDraftSections,
+  serializeProposalDraft,
+  type ProposalDraft,
+  type ProposalDraftSectionKey,
 } from "@/lib/proposal-draft";
 import { roleMeetsRequirement } from "@/lib/roles";
 import type { ProposalRecord } from "@/lib/types";
@@ -25,6 +29,9 @@ export function ProposalsBoard({
   const canPromote =
     Boolean(session?.user) &&
     Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_3"));
+  const canEditAllProposals =
+    Boolean(session?.user) &&
+    Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
 
   function promoteProposal(proposalId: string) {
     if (!session?.user) {
@@ -82,6 +89,64 @@ export function ProposalsBoard({
     });
   }
 
+  function saveProposal(proposalId: string, title: string, draft: ProposalDraft) {
+    if (!session?.user) {
+      setFeedback("請先登入後再操作。");
+      return;
+    }
+
+    const content = serializeProposalDraft(draft);
+
+    if (!title.trim() || !content.trim()) {
+      setFeedback("提案標題和內容不能空白。");
+      return;
+    }
+
+    setFeedback(null);
+
+    startTransition(async () => {
+      const accessToken = session.access_token;
+
+      if (!accessToken) {
+        setFeedback("登入狀態失效，請重新登入後再試一次。");
+        return;
+      }
+
+      const response = await fetch(`/api/proposals/${proposalId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
+
+      const data = (await response.json()) as { code?: string; error?: string; message?: string };
+
+      if (!response.ok) {
+        setFeedback(getApiErrorMessage(data, response.status));
+        return;
+      }
+
+      setProposals((current) =>
+        current.map((proposal) =>
+          proposal.id === proposalId
+            ? {
+                ...proposal,
+                title: title.trim(),
+                content,
+                updated_at: new Date().toISOString(),
+              }
+            : proposal,
+        ),
+      );
+      setFeedback(data.message ?? "提案已更新。");
+    });
+  }
+
   return (
     <section className="grid gap-4">
       {feedback ? (
@@ -99,9 +164,12 @@ export function ProposalsBoard({
           <ProposalCard
             key={proposal.id}
             proposal={proposal}
+            currentUserId={profile?.id ?? null}
+            canEditAllProposals={canEditAllProposals}
             canPromote={canPromote}
             isPending={isPending || loading}
             onPromote={promoteProposal}
+            onSave={saveProposal}
           />
         ))
       )}
@@ -111,17 +179,41 @@ export function ProposalsBoard({
 
 function ProposalCard({
   proposal,
+  currentUserId,
+  canEditAllProposals,
   canPromote,
   isPending,
   onPromote,
+  onSave,
 }: {
   proposal: ProposalRecord;
+  currentUserId: string | null;
+  canEditAllProposals: boolean;
   canPromote: boolean;
   isPending: boolean;
   onPromote: (proposalId: string) => void;
+  onSave: (proposalId: string, title: string, draft: ProposalDraft) => void;
 }) {
   const structured = isStructuredProposalContent(proposal.content);
-  const draft = parseProposalDraft(proposal.content);
+  const draft = structured
+    ? parseProposalDraft(proposal.content)
+    : { ...emptyProposalDraft, question: proposal.content };
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(proposal.title);
+  const [editDraft, setEditDraft] = useState<ProposalDraft>(draft);
+  const canEditProposal =
+    proposal.status !== "promoted" &&
+    Boolean(currentUserId) &&
+    (proposal.user_id === currentUserId || canEditAllProposals);
+
+  function updateEditDraftField(key: ProposalDraftSectionKey, value: string) {
+    setEditDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function resetEditState() {
+    setEditTitle(proposal.title);
+    setEditDraft(parseProposalDraft(proposal.content));
+  }
 
   return (
     <article className="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(41,37,36,0.25)]">
@@ -134,31 +226,96 @@ function ProposalCard({
         </span>
       </div>
 
-      <h2 className="mt-4 text-xl font-semibold text-stone-950">{proposal.title}</h2>
+      {isEditing ? (
+        <div className="mt-5 grid gap-4 rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4">
+          <label className="grid gap-2">
+            <span className="text-sm font-medium text-stone-700">提案標題</span>
+            <input
+              value={editTitle}
+              onChange={(event) => setEditTitle(event.target.value)}
+              className="rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-amber-500"
+            />
+          </label>
 
-      {structured ? (
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
           {proposalDraftSections.map((section) => (
-            <section
-              key={section.key}
-              className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4"
-            >
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
-                {section.label}
-              </p>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-stone-700">
-                {draft[section.key]?.trim() || "尚未填寫"}
-              </p>
-            </section>
+            <label key={section.key} className="grid gap-2">
+              <span className="text-sm font-medium text-stone-700">{section.label}</span>
+              <textarea
+                value={editDraft[section.key]}
+                onChange={(event) => updateEditDraftField(section.key, event.target.value)}
+                className="min-h-28 rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition focus:border-amber-500"
+              />
+            </label>
           ))}
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => {
+                resetEditState();
+                setIsEditing(false);
+              }}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:text-stone-950 disabled:cursor-not-allowed disabled:text-stone-400"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => {
+                onSave(proposal.id, editTitle, editDraft);
+                setIsEditing(false);
+              }}
+              className="inline-flex rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+            >
+              {isPending ? "儲存中..." : "儲存提案"}
+            </button>
+          </div>
         </div>
       ) : (
-        <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-stone-700">
-          {proposal.content}
-        </p>
+        <>
+          <h2 className="mt-4 text-xl font-semibold text-stone-950">{proposal.title}</h2>
+
+          {structured ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {proposalDraftSections.map((section) => (
+                <section
+                  key={section.key}
+                  className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4"
+                >
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
+                    {section.label}
+                  </p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-stone-700">
+                    {draft[section.key]?.trim() || "尚未填寫"}
+                  </p>
+                </section>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-stone-700">
+              {proposal.content}
+            </p>
+          )}
+        </>
       )}
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
+        {canEditProposal && !isEditing ? (
+          <button
+            type="button"
+            onClick={() => {
+              resetEditState();
+              setIsEditing(true);
+            }}
+            disabled={isPending}
+            className="inline-flex rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:border-amber-500 disabled:cursor-not-allowed disabled:text-stone-400"
+          >
+            編輯我的提案
+          </button>
+        ) : null}
+
         {proposal.promoted_case_id ? (
           <Link
             href={`/cases/${proposal.promoted_case_id}`}

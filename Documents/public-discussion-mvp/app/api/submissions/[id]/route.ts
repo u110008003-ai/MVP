@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClientForToken } from "@/lib/supabase";
 import { requireRole } from "@/lib/server-auth";
 import type { SubmissionStatus } from "@/lib/types";
 
@@ -25,7 +25,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Invalid submission status." }, { status: 400 });
   }
 
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
     return NextResponse.json(

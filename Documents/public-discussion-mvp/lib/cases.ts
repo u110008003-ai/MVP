@@ -162,7 +162,7 @@ export async function getProposals() {
   const { data, error } = await supabase
     .from("proposals")
     .select(
-      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, profiles:profiles!proposals_user_id_fkey(display_name)",
+      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at, profiles:profiles!proposals_user_id_fkey(display_name)",
     )
     .order("created_at", { ascending: false });
 

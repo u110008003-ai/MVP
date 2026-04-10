@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClientForToken } from "@/lib/supabase";
 import { authenticateRequest } from "@/lib/server-auth";
 import type { SubmissionPayload, SubmissionType } from "@/lib/types";
 
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
     return NextResponse.json(

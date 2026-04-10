@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClientForToken } from "@/lib/supabase";
 import { requireRole } from "@/lib/server-auth";
 
 export async function POST(request: Request) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
     return NextResponse.json(
