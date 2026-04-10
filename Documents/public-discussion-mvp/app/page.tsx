@@ -30,13 +30,17 @@ export default async function Home() {
               </p>
 
               <h1 className="mt-8 max-w-4xl text-5xl font-black leading-[1.08] tracking-[-0.04em] text-white md:text-7xl">
-                有些人只會表態。
+                把情緒降到最低，
                 <br />
-                <span className="text-amber-300">有些人會先查證。</span>
+                <span className="text-amber-300">把判斷拉到前面。</span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-xl leading-9 text-stone-200">
-                這裡不是給想吵贏的人，是給想看懂的人。
+              <p className="mt-6 max-w-3xl text-xl leading-9 text-stone-200">
+                不是幫你站隊，而是幫你看清楚：哪些是真的，哪些只是話術。
+              </p>
+
+              <p className="mt-5 inline-flex max-w-3xl rounded-[1.5rem] border border-white/15 bg-white/[0.06] px-5 py-4 text-base font-semibold leading-8 text-amber-100">
+                當別人忙著表態，這裡忙著把事情講清楚。
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
