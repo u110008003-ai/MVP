@@ -17,7 +17,15 @@ export type CaseRecord = {
   summary_image_url: string;
   summary_image_note: string;
   status: CaseStatus;
+  created_by?: string | null;
+  promoted_by?: string | null;
   updated_at: string;
+  created_by_profile?: {
+    display_name: string;
+  } | null;
+  promoted_by_profile?: {
+    display_name: string;
+  } | null;
 };
 
 export type CaseUpdatePayload = Pick<
@@ -89,6 +97,9 @@ export type ProposalRecord = {
   created_at: string;
   updated_at?: string | null;
   profiles?: {
+    display_name: string;
+  } | null;
+  reviewed_by_profile?: {
     display_name: string;
   } | null;
 };

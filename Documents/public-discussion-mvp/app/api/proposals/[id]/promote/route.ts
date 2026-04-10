@@ -93,6 +93,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       summary_image_note: string;
       status: "formal";
       created_by: string | null;
+      promoted_by: string;
     }) => {
       select: (columns: string) => {
         single: () => PromiseLike<{ data: { id: string } | null; error: { message: string } | null }>;
@@ -115,6 +116,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       summary_image_note: caseTemplate.summary_image_note,
       status: "formal",
       created_by: proposalResult.data.user_id,
+      promoted_by: auth.actor.id,
     })
     .select("id")
     .single();

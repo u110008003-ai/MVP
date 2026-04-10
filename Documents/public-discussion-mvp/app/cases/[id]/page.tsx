@@ -72,6 +72,17 @@ export default async function CaseDetailPage({ params }: PageProps) {
             提案主題：<span className="font-bold text-[var(--color-text)]">{caseItem.title}</span>
           </p>
 
+          <div className="mt-5 grid gap-3 text-sm text-[var(--color-text-muted)] sm:grid-cols-2">
+            <AttributionCard
+              label="原始提案者"
+              value={caseItem.created_by_profile?.display_name ?? "尚未紀錄"}
+            />
+            <AttributionCard
+              label="升格為正式案件"
+              value={caseItem.promoted_by_profile?.display_name ?? "尚未紀錄"}
+            />
+          </div>
+
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
             <article className="rounded-[1.5rem] border border-[oklch(0.72_0.02_80_/_0.2)] bg-[#1e1d1b] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
               <p className="border-l border-[oklch(0.74_0.02_80_/_0.2)] pl-3 text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
@@ -246,6 +257,17 @@ export default async function CaseDetailPage({ params }: PageProps) {
         <SubmissionPanel caseId={caseItem.id} />
       </div>
     </main>
+  );
+}
+
+function AttributionCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3">
+      <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-semibold text-[var(--color-text)]">{value}</p>
+    </div>
   );
 }
 

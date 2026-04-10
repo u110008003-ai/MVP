@@ -17,7 +17,11 @@ const caseColumns = [
   "summary_image_url",
   "summary_image_note",
   "status",
+  "created_by",
+  "promoted_by",
   "updated_at",
+  "created_by_profile:profiles!cases_created_by_fkey(display_name)",
+  "promoted_by_profile:profiles!cases_promoted_by_fkey(display_name)",
 ].join(", ");
 
 export async function getCases() {
@@ -162,7 +166,7 @@ export async function getProposals() {
   const { data, error } = await supabase
     .from("proposals")
     .select(
-      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at, profiles:profiles!proposals_user_id_fkey(display_name)",
+      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at, profiles:profiles!proposals_user_id_fkey(display_name), reviewed_by_profile:profiles!proposals_reviewed_by_fkey(display_name)",
     )
     .order("created_at", { ascending: false });
 

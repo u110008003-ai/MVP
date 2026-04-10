@@ -224,6 +224,11 @@ function ProposalCard({
         <span className="text-sm text-stone-500">
           提案者：{proposal.profiles?.display_name ?? "未知"}
         </span>
+        {proposal.status === "promoted" ? (
+          <span className="text-sm text-stone-500">
+            升格者：{proposal.reviewed_by_profile?.display_name ?? "尚未紀錄"}
+          </span>
+        ) : null}
       </div>
 
       {isEditing ? (
