@@ -17,7 +17,7 @@ type FieldKey = keyof CaseUpdatePayload;
 const fieldLabel: Record<FieldKey, string> = {
   question: "核心問題",
   narrative_timeline: "事件來龍去脈",
-  stable_conclusion: "穩定結論",
+  stable_conclusion: "目前暫定結論",
   confirmed_facts: "已確認事實",
   possible_explanations: "目前可能解釋",
   unsupported_claims: "未支持主張",

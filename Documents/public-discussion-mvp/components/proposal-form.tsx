@@ -100,14 +100,22 @@ export function ProposalForm() {
           <div>
             <h3 className="text-lg font-semibold text-stone-950">提案草稿板塊</h3>
             <p className="mt-2 text-sm leading-7 text-stone-600">
-              proposal 現在會像 case 一樣分區整理，但它還只是草稿。你可以先把知道的內容填進來，
-              之後升格成 case 時會更好整理。
+              proposal 現在會盡量和正式 case 使用相同板塊，這樣之後升格時不需要再整份重拆。
+              只有「作者 OS / 心裡話」會留在草稿端，不會直接進正式案件。
             </p>
           </div>
 
           {proposalDraftSections.map((section) => (
             <label key={section.key} className="grid gap-2">
-              <span className="text-sm font-medium text-stone-700">{section.label}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-stone-700">{section.label}</span>
+                {!section.promoteToCase ? (
+                  <span className="rounded-full border border-stone-300 bg-white px-2 py-1 text-[11px] font-semibold text-stone-600">
+                    草稿限定
+                  </span>
+                ) : null}
+              </div>
+              <span className="text-xs leading-6 text-stone-500">{section.description}</span>
               <textarea
                 value={draft[section.key]}
                 onChange={(event) => updateDraftField(section.key, event.target.value)}
@@ -119,7 +127,8 @@ export function ProposalForm() {
         </section>
 
         <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4 text-sm leading-7 text-stone-600">
-          提案送出後，Level 2 可以持續補充內容，Level 3 可以檢查內容是否已足夠，再決定是否升格成正式案件。
+          提案送出後，作者可以持續補內容；Level 3 可以審查是否適合升格；
+          Level 4 則負責正式案件的最終整理與管理。
         </div>
 
         <div className="flex justify-end">

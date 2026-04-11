@@ -88,6 +88,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       possible_explanations: string;
       unsupported_claims: string;
       evidence_list: string;
+      reference_links: string;
       open_questions: string;
       summary_image_url: string;
       summary_image_note: string;
@@ -111,6 +112,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       possible_explanations: caseTemplate.possible_explanations,
       unsupported_claims: caseTemplate.unsupported_claims,
       evidence_list: caseTemplate.evidence_list,
+      reference_links: caseTemplate.reference_links,
       open_questions: caseTemplate.open_questions,
       summary_image_url: "",
       summary_image_note: caseTemplate.summary_image_note,
@@ -166,13 +168,16 @@ function buildCaseTemplate(title: string, content: string) {
       narrative_timeline: draft.narrative,
       stable_conclusion: draft.conclusion || "這份提案剛升格為正式案件，後續可再依新資料修訂結論。",
       confirmed_facts: draft.facts,
-      possible_explanations: "",
+      possible_explanations: draft.possibleExplanations,
       unsupported_claims: draft.claims,
       evidence_list: draft.evidence,
-      open_questions: [
-        "- 哪些段落已足夠從提案提升為可確認事實？",
-        "- 哪些說法需要更多來源交叉比對？",
-      ].join("\n"),
+      reference_links: draft.referenceLinks,
+      open_questions:
+        draft.openQuestions ||
+        [
+          "- 哪些段落已足夠從提案提升為可確認事實？",
+          "- 哪些說法需要更多來源交叉比對？",
+        ].join("\n"),
       summary_image_note: draft.imageNote,
     };
   }
@@ -198,6 +203,7 @@ function buildCaseTemplate(title: string, content: string) {
       "- 補上 accepted submissions 中可追溯的來源。",
       "- 每筆證據盡量保持簡短並可查證。",
     ].join("\n"),
+    reference_links: "",
     open_questions: [
       "- 提案中的哪些部分已經可以驗證？",
       "- 目前有哪些說法和現有證據互相衝突？",

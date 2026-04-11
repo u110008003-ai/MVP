@@ -12,6 +12,7 @@ import {
   serializeProposalDraft,
   type ProposalDraft,
   type ProposalDraftSectionKey,
+  type ProposalDraftTone,
 } from "@/lib/proposal-draft";
 import { roleMeetsRequirement } from "@/lib/roles";
 import type { ProposalRecord } from "@/lib/types";
@@ -210,9 +211,15 @@ function ProposalCard({
     setEditDraft((current) => ({ ...current, [key]: value }));
   }
 
+  function buildResetDraft() {
+    return isStructuredProposalContent(proposal.content)
+      ? parseProposalDraft(proposal.content)
+      : { ...emptyProposalDraft, question: proposal.content };
+  }
+
   function resetEditState() {
     setEditTitle(proposal.title);
-    setEditDraft(parseProposalDraft(proposal.content));
+    setEditDraft(buildResetDraft());
   }
 
   return (
@@ -244,7 +251,15 @@ function ProposalCard({
 
           {proposalDraftSections.map((section) => (
             <label key={section.key} className="grid gap-2">
-              <span className="text-sm font-medium text-stone-700">{section.label}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-stone-700">{section.label}</span>
+                {!section.promoteToCase ? (
+                  <span className="rounded-full border border-stone-300 bg-white px-2 py-1 text-[11px] font-semibold text-stone-600">
+                    草稿限定
+                  </span>
+                ) : null}
+              </div>
+              <span className="text-xs leading-6 text-stone-500">{section.description}</span>
               <textarea
                 value={editDraft[section.key]}
                 onChange={(event) => updateEditDraftField(section.key, event.target.value)}
@@ -281,17 +296,28 @@ function ProposalCard({
       ) : (
         <>
           <h2 className="mt-4 text-xl font-semibold text-stone-950">{proposal.title}</h2>
+          <p className="mt-2 text-sm leading-7 text-stone-500">
+            提案板塊現在會盡量對齊正式案件，方便之後直接升格整理。
+          </p>
 
           {structured ? (
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {proposalDraftSections.map((section) => (
                 <section
                   key={section.key}
-                  className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4"
+                  className={`rounded-[1.25rem] border p-4 ${getSectionClass(section.tone)}`}
                 >
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
-                    {section.label}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${getTitleClass(section.tone)}`}>
+                      {section.label}
+                    </p>
+                    {!section.promoteToCase ? (
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-semibold text-stone-500">
+                        草稿限定
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-xs leading-6 text-stone-500">{section.description}</p>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-stone-700">
                     {draft[section.key]?.trim() || "尚未填寫"}
                   </p>
@@ -343,4 +369,44 @@ function ProposalCard({
       </div>
     </article>
   );
+}
+
+function getSectionClass(tone: ProposalDraftTone) {
+  if (tone === "success") {
+    return "border-[oklch(0.65_0.12_140_/_0.2)] bg-[color-mix(in_oklch,#6daa45_6%,#fafaf9)]";
+  }
+
+  if (tone === "warning") {
+    return "border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#fafaf9)]";
+  }
+
+  if (tone === "gold") {
+    return "border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_7%,#fafaf9)]";
+  }
+
+  if (tone === "info") {
+    return "border-[oklch(0.65_0.08_240_/_0.22)] bg-[color-mix(in_oklch,#4f7cff_7%,#fafaf9)]";
+  }
+
+  return "border-stone-200 bg-stone-50";
+}
+
+function getTitleClass(tone: ProposalDraftTone) {
+  if (tone === "success") {
+    return "text-[var(--color-success)]";
+  }
+
+  if (tone === "warning") {
+    return "text-[var(--color-warning)]";
+  }
+
+  if (tone === "gold") {
+    return "text-[var(--color-gold)]";
+  }
+
+  if (tone === "info") {
+    return "text-[oklch(0.55_0.12_245)]";
+  }
+
+  return "text-stone-500";
 }

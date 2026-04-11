@@ -95,7 +95,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
 
             <article className="rounded-[1.5rem] border border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)] p-6">
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-gold)]">
-                穩定結論
+                目前暫定結論
               </p>
               <div className="mt-4 text-lg leading-8 text-[var(--color-text)]">
                 <FormattedText value={caseItem.stable_conclusion} tone="gold" />
