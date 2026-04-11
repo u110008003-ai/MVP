@@ -136,19 +136,19 @@ export default async function Home() {
               <Link
                 key={caseItem.id}
                 href={`/cases/${caseItem.id}`}
-                className="group rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(41,37,36,0.45)] transition hover:-translate-y-0.5 hover:border-amber-500 hover:shadow-[0_18px_60px_-30px_rgba(180,83,9,0.35)]"
+                className="group rounded-[1.9rem] border border-stone-200 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(41,37,36,0.45)] transition hover:-translate-y-0.5 hover:border-amber-500 hover:shadow-[0_18px_60px_-30px_rgba(180,83,9,0.35)]"
               >
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                  <div className="max-w-3xl">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 max-w-3xl">
                     <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
                       {statusLabel[caseItem.status]}
                     </span>
 
-                    <h3 className="mt-4 text-2xl font-semibold text-stone-950 transition group-hover:text-amber-800">
+                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-stone-950 transition group-hover:text-amber-800">
                       {caseItem.title}
                     </h3>
 
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-4 flex flex-wrap gap-2">
                       <AttributionPill
                         label="提案者"
                         value={caseItem.created_by_profile?.display_name || "尚未紀錄"}
@@ -159,18 +159,38 @@ export default async function Home() {
                       />
                     </div>
 
-                    <p className="mt-3 text-sm font-medium uppercase tracking-[0.24em] text-stone-500">
-                      穩定結論
-                    </p>
-                    <p className="mt-2 text-base leading-7 text-stone-700">
-                      {caseItem.stable_conclusion || "尚未整理穩定結論。"}
-                    </p>
+                    <div className="mt-5 rounded-[1.35rem] border border-stone-200 bg-stone-50/90 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                        摘要
+                      </p>
+                      <p className="mt-3 text-[15px] leading-7 text-stone-700">
+                        {buildCardSummary(caseItem.stable_conclusion || caseItem.question)}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-amber-800">
+                      <span>查看完整案件</span>
+                      <span aria-hidden="true" className="transition group-hover:translate-x-1">
+                        →
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="shrink-0 rounded-2xl bg-stone-100 px-4 py-3 text-sm text-stone-600">
-                    最後更新
-                    <div className="mt-1 font-semibold text-stone-900">
-                      {formatDate(caseItem.updated_at)}
+                  <div className="grid shrink-0 gap-3 lg:w-[220px]">
+                    <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+                      最後更新
+                      <div className="mt-1 font-semibold text-stone-900">
+                        {formatDate(caseItem.updated_at)}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3 text-sm leading-7 text-stone-600">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+                        閱讀提示
+                      </p>
+                      <p className="mt-2">
+                        先看摘要，再點進去看完整脈絡、證據與修訂紀錄。
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -189,6 +209,20 @@ function AttributionPill({ label, value }: { label: string; value: string }) {
       {label}：<span className="ml-1 text-stone-900">{value}</span>
     </span>
   );
+}
+
+function buildCardSummary(value: string) {
+  const normalized = value
+    .replace(/^- /gm, "")
+    .replace(/\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized) {
+    return "這個案件已建立，但首頁摘要還沒有整理完成。";
+  }
+
+  return normalized.length > 120 ? `${normalized.slice(0, 120)}...` : normalized;
 }
 
 function formatDate(value: string) {
