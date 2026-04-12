@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { CollapsibleContentSection } from "@/components/collapsible-content-section";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   emptyProposalDraft,
@@ -12,8 +13,8 @@ import {
   serializeProposalDraft,
   type ProposalDraft,
   type ProposalDraftSectionKey,
-  type ProposalDraftTone,
 } from "@/lib/proposal-draft";
+import { parseReferenceLinks } from "@/components/reference-aware-text";
 import { roleMeetsRequirement } from "@/lib/roles";
 import type { ProposalRecord } from "@/lib/types";
 
@@ -206,6 +207,7 @@ function ProposalCard({
     proposal.status !== "promoted" &&
     Boolean(currentUserId) &&
     (proposal.user_id === currentUserId || canEditAllProposals);
+  const references = parseReferenceLinks(draft.referenceLinks);
 
   function updateEditDraftField(key: ProposalDraftSectionKey, value: string) {
     setEditDraft((current) => ({ ...current, [key]: value }));
@@ -263,7 +265,7 @@ function ProposalCard({
               <textarea
                 value={editDraft[section.key]}
                 onChange={(event) => updateEditDraftField(section.key, event.target.value)}
-                className="min-h-28 rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition focus:border-amber-500"
+                className="min-h-28 rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-stone-900 outline-none transition focus:border-amber-500"
               />
             </label>
           ))}
@@ -301,27 +303,20 @@ function ProposalCard({
           </p>
 
           {structured ? (
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div className="mt-5 grid gap-4">
               {proposalDraftSections.map((section) => (
-                <section
+                <CollapsibleContentSection
                   key={section.key}
-                  className={`rounded-[1.25rem] border p-4 ${getSectionClass(section.tone)}`}
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className={`text-sm font-semibold uppercase tracking-[0.18em] ${getTitleClass(section.tone)}`}>
-                      {section.label}
-                    </p>
-                    {!section.promoteToCase ? (
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-semibold text-stone-500">
-                        草稿限定
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-xs leading-6 text-stone-500">{section.description}</p>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-stone-700">
-                    {draft[section.key]?.trim() || "尚未填寫"}
-                  </p>
-                </section>
+                  label={section.label}
+                  description={section.description}
+                  value={draft[section.key]}
+                  tone={section.tone}
+                  references={references}
+                  defaultOpen={section.key === "question" || section.key === "facts"}
+                  compact
+                  badge={section.promoteToCase ? undefined : "草稿限定"}
+                  surface="light"
+                />
               ))}
             </div>
           ) : (
@@ -369,44 +364,4 @@ function ProposalCard({
       </div>
     </article>
   );
-}
-
-function getSectionClass(tone: ProposalDraftTone) {
-  if (tone === "success") {
-    return "border-[oklch(0.65_0.12_140_/_0.2)] bg-[color-mix(in_oklch,#6daa45_6%,#fafaf9)]";
-  }
-
-  if (tone === "warning") {
-    return "border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#fafaf9)]";
-  }
-
-  if (tone === "gold") {
-    return "border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_7%,#fafaf9)]";
-  }
-
-  if (tone === "info") {
-    return "border-[oklch(0.65_0.08_240_/_0.22)] bg-[color-mix(in_oklch,#4f7cff_7%,#fafaf9)]";
-  }
-
-  return "border-stone-200 bg-stone-50";
-}
-
-function getTitleClass(tone: ProposalDraftTone) {
-  if (tone === "success") {
-    return "text-[var(--color-success)]";
-  }
-
-  if (tone === "warning") {
-    return "text-[var(--color-warning)]";
-  }
-
-  if (tone === "gold") {
-    return "text-[var(--color-gold)]";
-  }
-
-  if (tone === "info") {
-    return "text-[oklch(0.55_0.12_245)]";
-  }
-
-  return "text-stone-500";
 }

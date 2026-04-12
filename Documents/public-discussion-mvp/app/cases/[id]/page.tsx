@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseRoleActions } from "@/components/case-role-actions";
+import { CollapsibleContentSection } from "@/components/collapsible-content-section";
+import {
+  parseReferenceLinks,
+  ReferenceAwareText,
+  type ReferenceEntry,
+} from "@/components/reference-aware-text";
 import { RevisionsPanel } from "@/components/revisions-panel";
 import { SubmissionPanel } from "@/components/submission-panel";
 import { TimelineExplorer } from "@/components/timeline-explorer";
@@ -16,8 +22,6 @@ type PageProps = {
     id: string;
   }>;
 };
-
-type CardTone = "neutral" | "gold" | "success" | "warning" | "info";
 
 const statusLabel: Record<CaseStatus, string> = {
   draft: "草稿",
@@ -42,6 +46,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
   const { submissions: acceptedSubmissions, error: acceptedError } =
     await getAcceptedSubmissionsForCase(caseItem.id);
   const { revisions, error: revisionsError } = await getRevisionsForCase(caseItem.id);
+  const references = parseReferenceLinks(caseItem.reference_links);
 
   return (
     <main className="min-h-screen bg-[var(--color-surface-deep)] px-6 py-10 text-[var(--color-text)]">
@@ -89,7 +94,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
                 核心問題
               </p>
               <div className="mt-4">
-                <FormattedText value={caseItem.question} tone="neutral" />
+                <ReferenceAwareText value={caseItem.question} tone="neutral" references={references} />
               </div>
             </article>
 
@@ -98,7 +103,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
                 目前暫定結論
               </p>
               <div className="mt-4 text-lg leading-8 text-[var(--color-text)]">
-                <FormattedText value={caseItem.stable_conclusion} tone="gold" />
+                <ReferenceAwareText value={caseItem.stable_conclusion} tone="gold" references={references} />
               </div>
             </article>
           </div>
@@ -130,12 +135,43 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          <FieldCard label="已確認事實" value={caseItem.confirmed_facts} tone="success" />
-          <FieldCard label="目前可能解釋" value={caseItem.possible_explanations} tone="info" />
-          <FieldCard label="未支持主張" value={caseItem.unsupported_claims} tone="warning" />
-          <FieldCard label="證據與材料" value={caseItem.evidence_list} tone="neutral" />
-          <FieldCard label="待確認問題" value={caseItem.open_questions} tone="neutral" />
+        <section className="grid gap-4">
+          <CollapsibleContentSection
+            label="已確認事實"
+            description="這裡只放目前已有來源支持、可以直接追溯的內容。"
+            value={caseItem.confirmed_facts}
+            tone="success"
+            references={references}
+            defaultOpen
+          />
+          <CollapsibleContentSection
+            label="目前可能解釋"
+            description="把不同可能性先拆開，避免和已確認事實混在一起。"
+            value={caseItem.possible_explanations}
+            tone="info"
+            references={references}
+          />
+          <CollapsibleContentSection
+            label="未支持主張"
+            description="這裡整理仍需補證據、或目前還不足以下判斷的說法。"
+            value={caseItem.unsupported_claims}
+            tone="warning"
+            references={references}
+          />
+          <CollapsibleContentSection
+            label="證據與材料"
+            description="集中列出已掌握的證據、摘錄或調查材料。"
+            value={caseItem.evidence_list}
+            tone="neutral"
+            references={references}
+          />
+          <CollapsibleContentSection
+            label="待確認問題"
+            description="這些是接下來還需要繼續查證或補齊的地方。"
+            value={caseItem.open_questions}
+            tone="neutral"
+            references={references}
+          />
         </section>
 
         <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
@@ -152,7 +188,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           <div className="mt-6">
-            <ReferenceLinks value={caseItem.reference_links} />
+            <ReferenceLinks references={references} />
           </div>
         </section>
 
@@ -295,96 +331,8 @@ function StatusBadge({ status }: { status: CaseStatus }) {
   );
 }
 
-function FieldCard({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: CardTone;
-}) {
-  const cardClass =
-    tone === "success"
-      ? "border-[oklch(0.65_0.12_140_/_0.2)] bg-[color-mix(in_oklch,#6daa45_6%,#1c1b19)]"
-      : tone === "warning"
-        ? "border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#1c1b19)]"
-        : tone === "gold"
-          ? "border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)]"
-          : tone === "info"
-            ? "border-[oklch(0.65_0.08_240_/_0.22)] bg-[color-mix(in_oklch,#4f7cff_7%,#1c1b19)]"
-            : "border-white/10 bg-[var(--color-surface-card)]";
-
-  const titleClass =
-    tone === "success"
-      ? "text-[var(--color-success)]"
-      : tone === "warning"
-        ? "text-[var(--color-warning)]"
-        : tone === "gold"
-          ? "text-[var(--color-gold)]"
-          : tone === "info"
-            ? "text-[oklch(0.75_0.12_245)]"
-            : "text-[var(--color-text-muted)]";
-
-  return (
-    <article className={`rounded-[1.5rem] border p-6 ${cardClass}`}>
-      <h2 className={`text-sm font-medium uppercase tracking-[0.24em] ${titleClass}`}>
-        {label}
-      </h2>
-      <div className="mt-4">
-        <FormattedText value={value} tone={tone} />
-      </div>
-    </article>
-  );
-}
-
-function FormattedText({ value, tone }: { value: string; tone: CardTone }) {
-  const content = value?.trim();
-
-  if (!content) {
-    return <p className="text-base leading-8 text-[var(--color-text-muted)]">尚未整理</p>;
-  }
-
-  const lines = content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const isBulletList = lines.every((line) => line.startsWith("- "));
-  const bulletColorClass =
-    tone === "success"
-      ? "bg-[var(--color-success)]"
-      : tone === "warning"
-        ? "bg-[var(--color-warning)]"
-        : tone === "gold"
-          ? "bg-[var(--color-gold)]"
-          : tone === "info"
-            ? "bg-[oklch(0.75_0.12_245)]"
-            : "bg-[var(--color-text-muted)]";
-
-  if (isBulletList) {
-    return (
-      <ul className="space-y-3 text-base leading-8 text-[var(--color-text)]">
-        {lines.map((line) => (
-          <li key={line} className="flex gap-3">
-            <span className={`mt-3 h-1.5 w-1.5 shrink-0 rounded-full ${bulletColorClass}`} />
-            <span>{line.slice(2)}</span>
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  return <p className="whitespace-pre-wrap text-base leading-8 text-[var(--color-text)]">{content}</p>;
-}
-
-function ReferenceLinks({ value }: { value: string }) {
-  const lines = value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (lines.length === 0) {
+function ReferenceLinks({ references }: { references: ReferenceEntry[] }) {
+  if (references.length === 0) {
     return (
       <div className="rounded-[1.5rem] border border-dashed border-white/15 p-6 text-sm leading-7 text-[var(--color-text-muted)]">
         目前還沒有參考連結。
@@ -394,18 +342,20 @@ function ReferenceLinks({ value }: { value: string }) {
 
   return (
     <div className="grid gap-3">
-      {lines.map((line) => {
-        const href = /^https?:\/\//i.test(line) ? line : `https://${line}`;
-
+      {references.map((reference) => {
         return (
           <a
-            key={line}
-            href={href}
+            key={reference.index}
+            id={`reference-${reference.index}`}
+            href={reference.href}
             target="_blank"
             rel="noreferrer"
             className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
           >
-            {line}
+            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[color-mix(in_oklch,#d19900_18%,#1c1b19)] px-2 text-xs font-semibold text-[var(--color-gold)]">
+              ({reference.index})
+            </span>
+            <span>{reference.label}</span>
           </a>
         );
       })}

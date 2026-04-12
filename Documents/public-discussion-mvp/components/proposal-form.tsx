@@ -120,7 +120,7 @@ export function ProposalForm() {
                 value={draft[section.key]}
                 onChange={(event) => updateDraftField(section.key, event.target.value)}
                 placeholder={`請填寫「${section.label}」`}
-                className="min-h-28 rounded-[1rem] border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                className="min-h-28 rounded-[1rem] border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
               />
             </label>
           ))}
