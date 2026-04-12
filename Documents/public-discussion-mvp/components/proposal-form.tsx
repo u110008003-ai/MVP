@@ -128,7 +128,7 @@ export function ProposalForm() {
 
         <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4 text-sm leading-7 text-stone-600">
           提案送出後，作者可以持續補內容；Level 3 可以審查是否適合升格；
-          Level 4 則負責正式案件的最終整理與管理。
+          正式案件則由管理端做最終整理與管理。
         </div>
 
         <div className="flex justify-end">

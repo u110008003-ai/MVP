@@ -10,7 +10,7 @@ const roleLabel: Record<UserRole, string> = {
   level_1: "Level 1",
   level_2: "Level 2",
   level_3: "Level 3",
-  level_4: "隱藏管理員",
+  level_4: "管理端",
 };
 
 type AuthMode = "sign-in" | "sign-up";
