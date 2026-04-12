@@ -157,7 +157,7 @@ export default async function Home() {
           id="participation"
           className="grid gap-4 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_60px_-35px_rgba(41,37,36,0.2)] lg:grid-cols-[1.05fr_1.4fr]"
         >
-          <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
+          <article className="flex flex-col justify-center rounded-[1.25rem] border border-stone-200 bg-stone-50 p-6 text-center lg:px-10">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
               你能做什麼
             </p>
@@ -167,7 +167,7 @@ export default async function Home() {
             </p>
           </article>
 
-          <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
+          <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4 text-center lg:text-left">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
               Participation Levels
             </p>
