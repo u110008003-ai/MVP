@@ -155,7 +155,7 @@ export default async function Home() {
 
         <section
           id="participation"
-          className="grid gap-4 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_60px_-35px_rgba(41,37,36,0.2)] md:grid-cols-3"
+          className="grid gap-4 rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_60px_-35px_rgba(41,37,36,0.2)] lg:grid-cols-[1.05fr_1.4fr]"
         >
           <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
@@ -171,29 +171,20 @@ export default async function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
               Participation Levels
             </p>
-            <div className="mt-4 grid gap-3 text-sm leading-7 text-stone-700">
-              <p>
-                <span className="font-semibold text-stone-950">Level 1：</span>
-                補充證據、指出錯誤、修正推論
-              </p>
-              <p>
-                <span className="font-semibold text-stone-950">Level 2：</span>
-                提出新題目
-              </p>
-              <p>
-                <span className="font-semibold text-stone-950">Level 3：</span>
-                整理案件、管理內容、升格結論
-              </p>
+            <div className="mt-4 grid gap-4 text-sm leading-7 text-stone-700 sm:grid-cols-3">
+              <div className="rounded-[1rem] border border-stone-200 bg-white p-4">
+                <p className="font-semibold text-stone-950">Level 1</p>
+                <p className="mt-2">補充證據、指出錯誤、修正推論</p>
+              </div>
+              <div className="rounded-[1rem] border border-stone-200 bg-white p-4">
+                <p className="font-semibold text-stone-950">Level 2</p>
+                <p className="mt-2">提出新題目</p>
+              </div>
+              <div className="rounded-[1rem] border border-stone-200 bg-white p-4">
+                <p className="font-semibold text-stone-950">Level 3</p>
+                <p className="mt-2">整理案件、管理內容、升格結論</p>
+              </div>
             </div>
-          </article>
-
-          <article className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
-              帳號入口
-            </p>
-            <p className="mt-3 text-sm leading-7 text-stone-600">
-              登入和註冊已經移到頁面右上角。先看內容，再決定要不要加入，首頁正文不再先塞一整塊登入表單。
-            </p>
           </article>
         </section>
       </div>
