@@ -42,7 +42,7 @@ export default async function Home() {
             </h1>
 
             <p className="mt-6 max-w-3xl text-xl leading-9 text-stone-200">
-              不是幫你站隊，而是幫你看清楚：哪些是真的，哪些只是話術。
+              不是幫你選邊站，而是陪你看清楚：哪些是事實，哪些只是話術。
             </p>
 
             <p className="mt-5 inline-flex max-w-3xl rounded-[1.5rem] border border-white/15 bg-white/[0.06] px-5 py-4 text-base font-semibold leading-8 text-amber-100">
