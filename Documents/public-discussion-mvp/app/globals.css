@@ -39,3 +39,10 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.line-clamp-home-card {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
