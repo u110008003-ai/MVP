@@ -46,7 +46,7 @@ export default async function Home() {
             </p>
 
             <p className="mt-5 inline-flex max-w-3xl rounded-[1.5rem] border border-white/15 bg-white/[0.06] px-5 py-4 text-base font-semibold leading-8 text-amber-100">
-              當別人忙著表態，這裡忙著把事情講清楚。
+              當別人忙著表態，這個網站忙著把事情講清楚。
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
