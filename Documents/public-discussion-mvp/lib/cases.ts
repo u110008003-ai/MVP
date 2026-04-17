@@ -1,8 +1,28 @@
 import { sampleCases } from "@/lib/sample-cases";
-import { getSupabaseServerClient } from "@/lib/supabase";
-import { CaseRecord, ProposalRecord, RevisionRecord, SubmissionRecord } from "@/lib/types";
+import { getSupabaseServerClient, getSupabaseServerClientForToken } from "@/lib/supabase";
+import type { CaseRecord, ProposalRecord, RevisionRecord, SubmissionRecord } from "@/lib/types";
 
-const caseColumns = [
+const publicCaseColumns = [
+  "id",
+  "title",
+  "question",
+  "narrative_timeline",
+  "stable_conclusion",
+  "confirmed_facts",
+  "possible_explanations",
+  "unsupported_claims",
+  "evidence_list",
+  "reference_links",
+  "open_questions",
+  "summary_image_url",
+  "summary_image_note",
+  "status",
+  "updated_at",
+  "created_by_display_name",
+  "promoted_by_display_name",
+].join(", ");
+
+const privateCaseColumns = [
   "id",
   "title",
   "question",
@@ -22,9 +42,61 @@ const caseColumns = [
   "updated_at",
 ].join(", ");
 
-type ProfileNameRecord = {
+type PublicCaseRow = {
   id: string;
-  display_name: string;
+  title: string;
+  question: string;
+  narrative_timeline: string;
+  stable_conclusion: string;
+  confirmed_facts: string;
+  possible_explanations: string;
+  unsupported_claims: string;
+  evidence_list: string;
+  reference_links: string;
+  open_questions: string;
+  summary_image_url: string;
+  summary_image_note: string;
+  status: CaseRecord["status"];
+  updated_at: string;
+  created_by_display_name: string | null;
+  promoted_by_display_name: string | null;
+};
+
+type PublicProposalRow = {
+  id: string;
+  title: string;
+  content: string;
+  status: ProposalRecord["status"];
+  promoted_case_id: string | null;
+  created_at: string;
+  updated_at: string | null;
+  author_display_name: string | null;
+  reviewer_display_name: string | null;
+};
+
+type PublicSubmissionRow = {
+  id: string;
+  case_id: string;
+  type: SubmissionRecord["type"];
+  content: string;
+  source_url: string | null;
+  created_at: string;
+};
+
+type PublicRevisionRow = {
+  id: string;
+  case_id: string;
+  summary: string;
+  detail: string;
+  created_at: string;
+};
+
+type AdminSubmissionRow = SubmissionRecord & {
+  cases?: {
+    title: string;
+  } | Array<{
+    title: string;
+  }> | null;
 };
 
 export async function getCases() {
@@ -35,61 +107,100 @@ export async function getCases() {
     return {
       cases: isProduction ? ([] as CaseRecord[]) : sampleCases,
       source: isProduction ? ("supabase" as const) : ("sample" as const),
-      error: "Supabase 尚未設定完成。",
+      error: "Server is missing Supabase environment settings.",
     };
   }
 
   const { data, error } = await supabase
-    .from("cases")
-    .select(caseColumns)
+    .from("public_cases")
+    .select(publicCaseColumns)
     .order("updated_at", { ascending: false });
 
   if (error) {
     return {
       cases: isProduction ? ([] as CaseRecord[]) : sampleCases,
       source: isProduction ? ("supabase" as const) : ("sample" as const),
-      error: `讀取 cases 失敗：${error.message}`,
+      error: `Failed to read public cases: ${error.message}`,
     };
   }
 
-  const cases = (data ?? []) as CaseRecord[];
-  const profileNames = await getProfileNames([
-    ...cases.map((item) => item.created_by),
-    ...cases.map((item) => item.promoted_by),
-  ]);
-
   return {
-    cases: cases.map((item) => ({
-      ...item,
-      created_by_profile: item.created_by
-        ? { display_name: profileNames.get(item.created_by) ?? "" }
-        : null,
-      promoted_by_profile: item.promoted_by
-        ? { display_name: profileNames.get(item.promoted_by) ?? "" }
-        : null,
-    })),
+    cases: (data ?? []).map(mapPublicCaseRow),
     source: "supabase" as const,
     error: null,
   };
 }
 
 export async function getCaseById(id: string) {
-  const { cases, source, error } = await getCases();
+  const supabase = getSupabaseServerClient();
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (!supabase) {
+    const fallback = isProduction ? null : sampleCases.find((item) => item.id === id) ?? null;
+    return {
+      caseItem: fallback,
+      source: isProduction ? ("supabase" as const) : ("sample" as const),
+      error: "Server is missing Supabase environment settings.",
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("public_cases")
+    .select(publicCaseColumns)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    return {
+      caseItem: null,
+      source: "supabase" as const,
+      error: `Failed to read public case: ${error.message}`,
+    };
+  }
 
   return {
-    caseItem: cases.find((item) => item.id === id) ?? null,
-    source,
-    error,
+    caseItem: data ? mapPublicCaseRow(data as PublicCaseRow) : null,
+    source: "supabase" as const,
+    error: null,
   };
 }
 
-export async function getSubmissions() {
-  const supabase = getSupabaseServerClient();
+export async function getCaseByIdForEditor(accessToken: string, id: string) {
+  const supabase = getSupabaseServerClientForToken(accessToken);
+
+  if (!supabase) {
+    return {
+      caseItem: null,
+      error: "Server is missing Supabase environment settings.",
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("cases")
+    .select(privateCaseColumns)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    return {
+      caseItem: null,
+      error: `Failed to read case editor payload: ${error.message}`,
+    };
+  }
+
+  return {
+    caseItem: (data ?? null) as CaseRecord | null,
+    error: null,
+  };
+}
+
+export async function getAdminSubmissions(accessToken: string) {
+  const supabase = getSupabaseServerClientForToken(accessToken);
 
   if (!supabase) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: "Supabase 尚未設定完成，無法讀取 submissions。",
+      error: "Server is missing Supabase environment settings.",
     };
   }
 
@@ -101,12 +212,20 @@ export async function getSubmissions() {
   if (error) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: `讀取 submissions 失敗：${error.message}`,
+      error: `Failed to read submissions: ${error.message}`,
     };
   }
 
   return {
-    submissions: (data ?? []) as SubmissionRecord[],
+    submissions: (data ?? []).map((item) => {
+      const row = item as AdminSubmissionRow;
+      const caseRelation = Array.isArray(row.cases) ? row.cases[0] ?? null : row.cases ?? null;
+
+      return {
+        ...row,
+        cases: caseRelation,
+      } satisfies SubmissionRecord;
+    }),
     error: null,
   };
 }
@@ -117,26 +236,25 @@ export async function getAcceptedSubmissionsForCase(caseId: string) {
   if (!supabase) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: "Supabase 尚未設定完成，無法讀取已採納 submissions。",
+      error: "Server is missing Supabase environment settings.",
     };
   }
 
   const { data, error } = await supabase
-    .from("submissions")
-    .select("id, case_id, type, content, source_url, status, created_at")
+    .from("public_accepted_submissions")
+    .select("id, case_id, type, content, source_url, created_at")
     .eq("case_id", caseId)
-    .eq("status", "accepted")
     .order("created_at", { ascending: false });
 
   if (error) {
     return {
       submissions: [] as SubmissionRecord[],
-      error: `讀取 accepted submissions 失敗：${error.message}`,
+      error: `Failed to read accepted submissions: ${error.message}`,
     };
   }
 
   return {
-    submissions: (data ?? []) as SubmissionRecord[],
+    submissions: (data ?? []).map((item) => mapPublicSubmissionRow(item as PublicSubmissionRow)),
     error: null,
   };
 }
@@ -147,25 +265,25 @@ export async function getRevisionsForCase(caseId: string) {
   if (!supabase) {
     return {
       revisions: [] as RevisionRecord[],
-      error: "Supabase 尚未設定完成，無法讀取 revisions。",
+      error: "Server is missing Supabase environment settings.",
     };
   }
 
   const { data, error } = await supabase
-    .from("revisions")
-    .select("id, case_id, editor_id, summary, detail, created_at")
+    .from("public_case_revisions")
+    .select("id, case_id, summary, detail, created_at")
     .eq("case_id", caseId)
     .order("created_at", { ascending: false });
 
   if (error) {
     return {
       revisions: [] as RevisionRecord[],
-      error: `讀取 revisions 失敗：${error.message}`,
+      error: `Failed to read case revisions: ${error.message}`,
     };
   }
 
   return {
-    revisions: (data ?? []) as RevisionRecord[],
+    revisions: (data ?? []).map((item) => mapPublicRevisionRow(item as PublicRevisionRow)),
     error: null,
   };
 }
@@ -176,61 +294,93 @@ export async function getProposals() {
   if (!supabase) {
     return {
       proposals: [] as ProposalRecord[],
-      error: "Supabase 尚未設定完成，無法讀取 proposals。",
+      error: "Server is missing Supabase environment settings.",
     };
   }
 
   const { data, error } = await supabase
-    .from("proposals")
+    .from("public_proposals")
     .select(
-      "id, user_id, title, content, status, promoted_case_id, reviewed_by, created_at, updated_at",
+      "id, title, content, status, promoted_case_id, created_at, updated_at, author_display_name, reviewer_display_name",
     )
     .order("created_at", { ascending: false });
 
   if (error) {
     return {
       proposals: [] as ProposalRecord[],
-      error: `讀取 proposals 失敗：${error.message}`,
+      error: `Failed to read public proposals: ${error.message}`,
     };
   }
 
-  const proposals = (data ?? []) as ProposalRecord[];
-  const profileNames = await getProfileNames([
-    ...proposals.map((item) => item.user_id),
-    ...proposals.map((item) => item.reviewed_by),
-  ]);
-
   return {
-    proposals: proposals.map((item) => ({
-      ...item,
-      profiles: item.user_id ? { display_name: profileNames.get(item.user_id) ?? "" } : null,
-      reviewed_by_profile: item.reviewed_by
-        ? { display_name: profileNames.get(item.reviewed_by) ?? "" }
-        : null,
-    })),
+    proposals: (data ?? []).map((item) => mapPublicProposalRow(item as PublicProposalRow)),
     error: null,
   };
 }
 
-async function getProfileNames(profileIds: Array<string | null | undefined>) {
-  const ids = Array.from(new Set(profileIds.filter((id): id is string => Boolean(id))));
-  const supabase = getSupabaseServerClient();
+function mapPublicCaseRow(item: PublicCaseRow): CaseRecord {
+  return {
+    id: item.id,
+    title: item.title,
+    question: item.question,
+    narrative_timeline: item.narrative_timeline,
+    stable_conclusion: item.stable_conclusion,
+    confirmed_facts: item.confirmed_facts,
+    possible_explanations: item.possible_explanations,
+    unsupported_claims: item.unsupported_claims,
+    evidence_list: item.evidence_list,
+    reference_links: item.reference_links,
+    open_questions: item.open_questions,
+    summary_image_url: item.summary_image_url,
+    summary_image_note: item.summary_image_note,
+    status: item.status,
+    updated_at: item.updated_at,
+    created_by_profile: item.created_by_display_name
+      ? { display_name: item.created_by_display_name }
+      : null,
+    promoted_by_profile: item.promoted_by_display_name
+      ? { display_name: item.promoted_by_display_name }
+      : null,
+  };
+}
 
-  if (!supabase || ids.length === 0) {
-    return new Map<string, string>();
-  }
+function mapPublicProposalRow(item: PublicProposalRow): ProposalRecord {
+  return {
+    id: item.id,
+    user_id: null,
+    title: item.title,
+    content: item.content,
+    status: item.status,
+    promoted_case_id: item.promoted_case_id,
+    reviewed_by: null,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    profiles: item.author_display_name ? { display_name: item.author_display_name } : null,
+    reviewed_by_profile: item.reviewer_display_name
+      ? { display_name: item.reviewer_display_name }
+      : null,
+  };
+}
 
-  const { data, error } = await supabase
-    .from("profile_public_names")
-    .select("id, display_name")
-    .in("id", ids);
+function mapPublicSubmissionRow(item: PublicSubmissionRow): SubmissionRecord {
+  return {
+    id: item.id,
+    case_id: item.case_id,
+    type: item.type,
+    content: item.content,
+    source_url: item.source_url,
+    status: "accepted",
+    created_at: item.created_at,
+  };
+}
 
-  if (error) {
-    return new Map<string, string>();
-  }
-
-  return new Map((data ?? []).map((item) => {
-    const profile = item as ProfileNameRecord;
-    return [profile.id, profile.display_name] as const;
-  }));
+function mapPublicRevisionRow(item: PublicRevisionRow): RevisionRecord {
+  return {
+    id: item.id,
+    case_id: item.case_id,
+    editor_id: null,
+    summary: item.summary,
+    detail: item.detail,
+    created_at: item.created_at,
+  };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useEffectEvent, useState, useTransition } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { CollapsibleContentSection } from "@/components/collapsible-content-section";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -26,6 +26,7 @@ export function ProposalsBoard({
   const { loading, session, profile } = useAuth();
   const [proposals, setProposals] = useState(initialProposals);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [ownProposalIds, setOwnProposalIds] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const canPromote =
@@ -34,6 +35,35 @@ export function ProposalsBoard({
   const canEditAllProposals =
     Boolean(session?.user) &&
     Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_4"));
+
+  const loadOwnProposalIds = useEffectEvent(async (accessToken: string) => {
+    try {
+      const response = await fetch("/api/proposals/mine", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        setOwnProposalIds([]);
+        return;
+      }
+
+      const data = (await response.json()) as { proposalIds?: string[] };
+      setOwnProposalIds(data.proposalIds ?? []);
+    } catch {
+      setOwnProposalIds([]);
+    }
+  });
+
+  useEffect(() => {
+    if (!session?.access_token || canEditAllProposals) {
+      setOwnProposalIds([]);
+      return;
+    }
+
+    void loadOwnProposalIds(session.access_token);
+  }, [canEditAllProposals, loadOwnProposalIds, session?.access_token]);
 
   function promoteProposal(proposalId: string) {
     if (!session?.user) {
@@ -166,7 +196,7 @@ export function ProposalsBoard({
           <ProposalCard
             key={proposal.id}
             proposal={proposal}
-            currentUserId={profile?.id ?? null}
+            isOwnedByCurrentUser={ownProposalIds.includes(proposal.id)}
             canEditAllProposals={canEditAllProposals}
             canPromote={canPromote}
             isPending={isPending || loading}
@@ -181,7 +211,7 @@ export function ProposalsBoard({
 
 function ProposalCard({
   proposal,
-  currentUserId,
+  isOwnedByCurrentUser,
   canEditAllProposals,
   canPromote,
   isPending,
@@ -189,7 +219,7 @@ function ProposalCard({
   onSave,
 }: {
   proposal: ProposalRecord;
-  currentUserId: string | null;
+  isOwnedByCurrentUser: boolean;
   canEditAllProposals: boolean;
   canPromote: boolean;
   isPending: boolean;
@@ -204,9 +234,7 @@ function ProposalCard({
   const [editTitle, setEditTitle] = useState(proposal.title);
   const [editDraft, setEditDraft] = useState<ProposalDraft>(draft);
   const canEditProposal =
-    proposal.status !== "promoted" &&
-    Boolean(currentUserId) &&
-    (proposal.user_id === currentUserId || canEditAllProposals);
+    proposal.status !== "promoted" && (isOwnedByCurrentUser || canEditAllProposals);
   const references = parseReferenceLinks(draft.referenceLinks);
 
   function updateEditDraftField(key: ProposalDraftSectionKey, value: string) {

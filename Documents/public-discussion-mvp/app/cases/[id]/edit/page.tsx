@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseEditForm } from "@/components/case-edit-form";
-import { getAcceptedSubmissionsForCase, getCaseById } from "@/lib/cases";
+import { getAcceptedSubmissionsForCase, getCaseByIdForEditor } from "@/lib/cases";
+import { requirePageRole } from "@/lib/server-auth";
 import { SubmissionType } from "@/lib/types";
 
 type PageProps = {
@@ -17,8 +18,9 @@ const submissionTypeLabel: Record<SubmissionType, string> = {
 };
 
 export default async function CaseEditPage({ params }: PageProps) {
+  const actor = await requirePageRole("level_4");
   const { id } = await params;
-  const { caseItem } = await getCaseById(id);
+  const { caseItem } = await getCaseByIdForEditor(actor.access_token, id);
 
   if (!caseItem) {
     notFound();

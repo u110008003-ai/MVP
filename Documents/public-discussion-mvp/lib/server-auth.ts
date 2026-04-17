@@ -1,6 +1,9 @@
+import { cookies } from "next/headers";
+import { forbidden, redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { SERVER_SESSION_COOKIE } from "@/lib/auth-constants";
 import { roleMeetsRequirement } from "@/lib/roles";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import type { ProfileRecord, UserRole } from "@/lib/types";
 
 export type RequestActor = {
@@ -22,46 +25,30 @@ function getBearerToken(request: Request) {
   return token || null;
 }
 
-export async function authenticateRequest(request: Request) {
+async function loadActorFromAccessToken(accessToken: string) {
   const supabase = getSupabaseServerClient();
 
   if (!supabase) {
     return {
       actor: null,
-      response: NextResponse.json(
-        { error: "Server is missing Supabase environment settings." },
-        { status: 500 },
-      ),
+      error: {
+        code: "supabase_config_missing",
+        message: "Server is missing Supabase environment settings.",
+        status: 500,
+      },
     };
   }
 
-  const token = getBearerToken(request);
-
-  if (!token) {
-    return {
-      actor: null,
-      response: NextResponse.json(
-        {
-          code: "auth_token_missing",
-          error: "Missing Authorization Bearer token.",
-        },
-        { status: 401 },
-      ),
-    };
-  }
-
-  const { data: authData, error: authError } = await supabase.auth.getUser(token);
+  const { data: authData, error: authError } = await supabase.auth.getUser(accessToken);
 
   if (authError || !authData.user) {
     return {
       actor: null,
-      response: NextResponse.json(
-        {
-          code: "auth_token_invalid",
-          error: "Invalid or expired login token. Please sign in again.",
-        },
-        { status: 401 },
-      ),
+      error: {
+        code: "auth_token_invalid",
+        message: "Invalid or expired login token. Please sign in again.",
+        status: 401,
+      },
     };
   }
 
@@ -84,13 +71,11 @@ export async function authenticateRequest(request: Request) {
   if (profileResult.error || !profileResult.data) {
     return {
       actor: null,
-      response: NextResponse.json(
-        {
-          code: "profile_not_found",
-          error: "Unable to read your profile role. Please refresh and try again.",
-        },
-        { status: 403 },
-      ),
+      error: {
+        code: "profile_not_found",
+        message: "Unable to read your profile role. Please refresh and try again.",
+        status: 403,
+      },
     };
   }
 
@@ -100,8 +85,45 @@ export async function authenticateRequest(request: Request) {
       email: profileResult.data.email,
       display_name: profileResult.data.display_name,
       role: profileResult.data.role,
-      access_token: token,
+      access_token: accessToken,
     } satisfies RequestActor,
+    error: null,
+  };
+}
+
+export async function authenticateRequest(request: Request) {
+  const token = getBearerToken(request);
+
+  if (!token) {
+    return {
+      actor: null,
+      response: NextResponse.json(
+        {
+          code: "auth_token_missing",
+          error: "Missing Authorization Bearer token.",
+        },
+        { status: 401 },
+      ),
+    };
+  }
+
+  const authResult = await loadActorFromAccessToken(token);
+
+  if (!authResult.actor || authResult.error) {
+    return {
+      actor: null,
+      response: NextResponse.json(
+        {
+          code: authResult.error?.code ?? "auth_failed",
+          error: authResult.error?.message ?? "Unable to authenticate request.",
+        },
+        { status: authResult.error?.status ?? 401 },
+      ),
+    };
+  }
+
+  return {
+    actor: authResult.actor,
     response: null,
   };
 }
@@ -127,4 +149,30 @@ export async function requireRole(request: Request, requiredRole: UserRole) {
   }
 
   return authResult;
+}
+
+export async function getServerActorFromCookie() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(SERVER_SESSION_COOKIE)?.value ?? null;
+
+  if (!accessToken) {
+    return null;
+  }
+
+  const authResult = await loadActorFromAccessToken(accessToken);
+  return authResult.actor;
+}
+
+export async function requirePageRole(requiredRole: UserRole) {
+  const actor = await getServerActorFromCookie();
+
+  if (!actor) {
+    redirect("/");
+  }
+
+  if (!roleMeetsRequirement(actor.role, requiredRole)) {
+    forbidden();
+  }
+
+  return actor;
 }

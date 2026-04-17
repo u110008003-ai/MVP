@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { AdminSubmissionsShell } from "@/components/admin-submissions-shell";
-import { getSubmissions } from "@/lib/cases";
+import { getAdminSubmissions } from "@/lib/cases";
+import { requirePageRole } from "@/lib/server-auth";
 
 export default async function AdminSubmissionsPage() {
-  const { submissions, error } = await getSubmissions();
+  const actor = await requirePageRole("level_3");
+  const { submissions, error } = await getAdminSubmissions(actor.access_token);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f4f0e7_0%,#faf7f2_35%,#ffffff_100%)] px-6 py-10 text-stone-900">

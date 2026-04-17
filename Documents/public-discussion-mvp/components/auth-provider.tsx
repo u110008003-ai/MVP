@@ -27,6 +27,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [loading, setLoading] = useState(() => Boolean(supabase));
 
+  const syncServerSession = useEffectEvent(async (accessToken: string | null) => {
+    try {
+      await fetch("/api/auth/session", {
+        method: accessToken ? "POST" : "DELETE",
+        headers: accessToken
+          ? {
+              Authorization: `Bearer ${accessToken}`,
+            }
+          : undefined,
+        credentials: "same-origin",
+      });
+    } catch {
+      // Best-effort sync only; client auth state remains authoritative for browser UX.
+    }
+  });
+
   const syncAndLoadProfile = useEffectEvent(async (userEmail: string, userId: string) => {
     if (!supabase) {
       return;
@@ -76,10 +92,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     void supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session ?? null);
+      const activeSession = data.session ?? null;
+      setSession(activeSession);
+      await syncServerSession(activeSession?.access_token ?? null);
 
-      if (data.session?.user) {
-        await syncAndLoadProfile(data.session.user.email ?? "", data.session.user.id);
+      if (activeSession?.user) {
+        await syncAndLoadProfile(activeSession.user.email ?? "", activeSession.user.id);
       }
 
       setLoading(false);
@@ -89,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      void syncServerSession(nextSession?.access_token ?? null);
 
       if (nextSession?.user) {
         void syncAndLoadProfile(nextSession.user.email ?? "", nextSession.user.id);
