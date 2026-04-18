@@ -3,6 +3,7 @@ import { HomeAuthNav } from "@/components/home-auth-nav";
 import { getCases } from "@/lib/cases";
 import { CaseStatus } from "@/lib/types";
 
+// Public-discussion homepage. Do not replace this with the infection explorer prototype.
 export const dynamic = "force-dynamic";
 
 const statusLabel: Record<CaseStatus, string> = {

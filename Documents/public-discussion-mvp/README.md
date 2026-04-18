@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 公共討論平台 MVP
 
-## Getting Started
+這個專案目前的主產品是「公共討論平台 MVP」。
 
-First, run the development server:
+主要功能包含：
+- 首頁案件列表
+- 提案池
+- 正式案件詳情頁
+- 修訂與補充資料流程
+- 管理端 submissions 審核
+- Supabase 權限與角色控管
+
+## 先看這個
+
+這個 repo 目前混有兩條產品線：
+
+1. 主線：公共討論平台
+2. 殘留原型：infection / candidemia explorer
+
+之後如果要修改首頁、登入、案件、提案、管理端，請預設你應該改的是「公共討論平台」那條主線，不是 explorer 原型。
+
+更完整的邊界說明在：
+
+- [docs/repo-boundaries.md](./docs/repo-boundaries.md)
+
+## 目前主線檔案
+
+最常會動到的主站入口：
+
+- `app/page.tsx`
+- `app/cases/**`
+- `app/proposals`
+- `app/admin/submissions`
+- `components/auth-*`
+- `components/home-auth-nav.tsx`
+- `components/case-*`
+- `lib/cases.ts`
+- `lib/server-auth.ts`
+- `supabase/*.sql`
+
+## 本機開發
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm.cmd run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+開啟 [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm.cmd run build
+```
 
-## Learn More
+## 測試
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm.cmd run test
+```

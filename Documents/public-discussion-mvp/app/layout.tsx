@@ -15,9 +15,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Infection Repurposing Explorer",
+  title: "公共討論平台 MVP",
   description:
-    "Clinician-centered exploration workspace for severe infection repurposing hypotheses, host-response evidence, and safety-aware review.",
+    "幫使用者整理案件脈絡、證據、修訂紀錄與討論層級的公共討論平台。",
 };
 
 export default function RootLayout({
