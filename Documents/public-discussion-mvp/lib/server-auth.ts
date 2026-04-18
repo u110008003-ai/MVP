@@ -3,7 +3,7 @@ import { forbidden, redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { SERVER_SESSION_COOKIE } from "@/lib/auth-constants";
 import { roleMeetsRequirement } from "@/lib/roles";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClient, getSupabaseServerClientForToken } from "@/lib/supabase";
 import type { ProfileRecord, UserRole } from "@/lib/types";
 
 export type RequestActor = {
@@ -27,8 +27,9 @@ function getBearerToken(request: Request) {
 
 async function loadActorFromAccessToken(accessToken: string) {
   const supabase = getSupabaseServerClient();
+  const actorSupabase = getSupabaseServerClientForToken(accessToken);
 
-  if (!supabase) {
+  if (!supabase || !actorSupabase) {
     return {
       actor: null,
       error: {
@@ -52,7 +53,7 @@ async function loadActorFromAccessToken(accessToken: string) {
     };
   }
 
-  const profilesTable = supabase.from("profiles") as unknown as {
+  const profilesTable = actorSupabase.from("profiles") as unknown as {
     select: (columns: string) => {
       eq: (
         column: string,
