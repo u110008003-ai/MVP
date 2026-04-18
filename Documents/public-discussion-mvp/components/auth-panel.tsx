@@ -15,6 +15,14 @@ const roleLabel: Record<UserRole, string> = {
 
 type AuthMode = "sign-in" | "sign-up";
 
+function getVisibleRoleLabel(role: UserRole | null | undefined) {
+  if (!role) {
+    return "角色未同步";
+  }
+
+  return roleLabel[role];
+}
+
 export function AuthPanel() {
   const { session, profile, supabaseAvailable } = useAuth();
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
@@ -115,7 +123,7 @@ export function AuthPanel() {
             <p className="mt-1 text-sm text-stone-300">{session.user.email}</p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-stone-950">
-                {roleLabel[profile?.role ?? "level_1"]}
+                {getVisibleRoleLabel(profile?.role)}
               </span>
             </div>
           </div>

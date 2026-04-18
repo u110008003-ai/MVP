@@ -69,6 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     };
 
+    const existingProfileResult = await profilesTable
+      .select("id, email, display_name, role, created_at")
+      .eq("id", userId)
+      .single();
+
+    if (existingProfileResult.data && !existingProfileResult.error) {
+      setProfile(existingProfileResult.data);
+      return;
+    }
+
     const upsertResult = await profilesTable.upsert(
       {
         id: userId,

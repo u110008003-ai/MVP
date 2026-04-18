@@ -15,6 +15,14 @@ const roleLabel: Record<UserRole, string> = {
 
 type AuthMode = "sign-in" | "sign-up";
 
+function getVisibleRoleLabel(role: UserRole | null | undefined) {
+  if (!role) {
+    return "角色未同步";
+  }
+
+  return roleLabel[role];
+}
+
 export function HomeAuthNav() {
   const { session, profile, supabaseAvailable } = useAuth();
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
@@ -109,7 +117,7 @@ export function HomeAuthNav() {
               <p className="mt-2 text-lg font-semibold">{profile?.display_name || session.user.email}</p>
               <p className="mt-1 text-sm text-stone-300">{session.user.email}</p>
               <span className="mt-4 inline-flex rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-stone-950">
-                {roleLabel[profile?.role ?? "level_1"]}
+                {getVisibleRoleLabel(profile?.role)}
               </span>
             </div>
 
