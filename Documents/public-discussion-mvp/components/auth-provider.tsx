@@ -27,87 +27,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [loading, setLoading] = useState(() => Boolean(supabase));
 
-  const syncServerSession = useEffectEvent(async (accessToken: string | null) => {
+  const clearServerSession = useEffectEvent(async () => {
     try {
       await fetch("/api/auth/session", {
-        method: accessToken ? "POST" : "DELETE",
-        headers: accessToken
-          ? {
-              Authorization: `Bearer ${accessToken}`,
-            }
-          : undefined,
+        method: "DELETE",
         credentials: "same-origin",
+        cache: "no-store",
       });
     } catch {
-      // Best-effort sync only; client auth state remains authoritative for browser UX.
+      // Best-effort cleanup only.
     }
   });
 
-  const syncAndLoadProfile = useEffectEvent(async (userEmail: string, userId: string) => {
-    if (!supabase) {
-      return;
-    }
-
-    const fallbackName = userEmail.split("@")[0] || "new-user";
-
-    const profilesTable = supabase.from("profiles") as unknown as {
-      upsert: (
-        values: {
-          id: string;
-          email: string;
-          display_name: string;
+  const loadProfileFromServer = useEffectEvent(async (accessToken: string) => {
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-        options: { onConflict: string },
-      ) => PromiseLike<{ error: { message: string } | null }>;
-      select: (columns: string) => {
-        eq: (
-          column: string,
-          value: string,
-        ) => {
-          single: () => PromiseLike<{ data: ProfileRecord | null; error: { message: string } | null }>;
-        };
-      };
-    };
+        credentials: "same-origin",
+        cache: "no-store",
+      });
 
-    const existingProfileResult = await profilesTable
-      .select("id, email, display_name, role, created_at")
-      .eq("id", userId)
-      .single();
+      if (!response.ok) {
+        setProfile(null);
+        return;
+      }
 
-    if (existingProfileResult.data && !existingProfileResult.error) {
-      setProfile(existingProfileResult.data);
-      return;
-    }
-
-    const upsertResult = await profilesTable.upsert(
-      {
-        id: userId,
-        email: userEmail,
-        display_name: fallbackName,
-      },
-      { onConflict: "id" },
-    );
-
-    if (upsertResult.error) {
+      const payload = (await response.json()) as { profile?: ProfileRecord | null };
+      setProfile(payload.profile ?? null);
+    } catch {
       setProfile(null);
-      return;
     }
-
-    const { data, error } = await profilesTable
-      .select("id, email, display_name, role, created_at")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      setProfile(null);
-      return;
-    }
-
-    setProfile(data ?? null);
   });
 
   useEffect(() => {
     if (!supabase) {
+      setLoading(false);
       return;
     }
 
@@ -116,10 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then(async ({ data }) => {
         const activeSession = data.session ?? null;
         setSession(activeSession);
-        await syncServerSession(activeSession?.access_token ?? null);
 
         if (activeSession?.user) {
-          await syncAndLoadProfile(activeSession.user.email ?? "", activeSession.user.id);
+          await loadProfileFromServer(activeSession.access_token);
+        } else {
+          setProfile(null);
+          await clearServerSession();
         }
       })
       .catch(() => {
@@ -134,12 +93,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      void syncServerSession(nextSession?.access_token ?? null);
 
       if (nextSession?.user) {
-        void syncAndLoadProfile(nextSession.user.email ?? "", nextSession.user.id);
+        void loadProfileFromServer(nextSession.access_token);
       } else {
         setProfile(null);
+        void clearServerSession();
       }
 
       setLoading(false);
