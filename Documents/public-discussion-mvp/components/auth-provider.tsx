@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     };
 
-    await profilesTable.upsert(
+    const upsertResult = await profilesTable.upsert(
       {
         id: userId,
         email: userEmail,
@@ -78,10 +78,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       { onConflict: "id" },
     );
 
-    const { data } = await profilesTable
+    if (upsertResult.error) {
+      setProfile(null);
+      return;
+    }
+
+    const { data, error } = await profilesTable
       .select("id, email, display_name, role, created_at")
       .eq("id", userId)
       .single();
+
+    if (error) {
+      setProfile(null);
+      return;
+    }
 
     setProfile(data ?? null);
   });
@@ -91,17 +101,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    void supabase.auth.getSession().then(async ({ data }) => {
-      const activeSession = data.session ?? null;
-      setSession(activeSession);
-      await syncServerSession(activeSession?.access_token ?? null);
+    void supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        const activeSession = data.session ?? null;
+        setSession(activeSession);
+        await syncServerSession(activeSession?.access_token ?? null);
 
-      if (activeSession?.user) {
-        await syncAndLoadProfile(activeSession.user.email ?? "", activeSession.user.id);
-      }
-
-      setLoading(false);
-    });
+        if (activeSession?.user) {
+          await syncAndLoadProfile(activeSession.user.email ?? "", activeSession.user.id);
+        }
+      })
+      .catch(() => {
+        setSession(null);
+        setProfile(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
@@ -114,6 +131,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setProfile(null);
       }
+
+      setLoading(false);
     });
 
     return () => {
