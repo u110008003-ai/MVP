@@ -44,6 +44,15 @@ test("security migration revokes anon access to sensitive base tables", () => {
   assert.match(sql, /revoke all on public\.revisions from anon;/);
 });
 
+test("profiles select policy only allows reading your own row", () => {
+  const sql = readProjectFile("supabase", "security-hardening.sql");
+  const hotfixSql = readProjectFile("supabase", "fix-profiles-policy-recursion.sql");
+
+  assert.ok(!sql.includes('create policy "Management roles can read profiles"'));
+  assert.match(sql, /create policy "Users can read own profile"[\s\S]*using \(auth\.uid\(\) = id\);/);
+  assert.ok(!hotfixSql.includes('create policy "Management roles can read profiles"'));
+});
+
 test("public views expose safe columns only", () => {
   const sql = readProjectFile("supabase", "security-hardening.sql");
   const publicCasesBlock = extractBlock(

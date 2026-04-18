@@ -30,19 +30,6 @@ for select
 to authenticated
 using (auth.uid() = id);
 
-create policy "Management roles can read profiles"
-on public.profiles
-for select
-to authenticated
-using (
-  exists (
-    select 1
-    from public.profiles as actor
-    where actor.id = auth.uid()
-      and actor.role in ('level_3', 'level_4')
-  )
-);
-
 create policy "Users can insert own profile"
 on public.profiles
 for insert
