@@ -68,7 +68,7 @@ export function ReferenceAwareText({
         : tone === "gold"
           ? "bg-[var(--color-gold)]"
           : tone === "info"
-            ? "bg-[oklch(0.75_0.12_245)]"
+            ? "bg-[var(--color-info)]"
             : "bg-[var(--color-text-muted)]";
 
   if (isBulletList) {

@@ -75,7 +75,7 @@ export function ProposalForm() {
 
   return (
     <section className="glass-panel-strong rounded-[2rem] p-6">
-      <h2 className="text-2xl font-semibold text-white">建立草稿提案</h2>
+      <h2 className="text-2xl font-semibold text-[var(--color-text)]">建立草稿提案</h2>
 
       <div className="glass-chip mt-4 rounded-[1.25rem] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
         {loading
@@ -92,13 +92,13 @@ export function ProposalForm() {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="例如：某事件是否值得整理成正式案件"
-            className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-base text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
+            className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-base text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
           />
         </label>
 
         <section className="glass-chip grid gap-4 rounded-[1.5rem] p-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">提案草稿板塊</h3>
+            <h3 className="text-lg font-semibold text-[var(--color-text)]">提案草稿板塊</h3>
             <p className="muted-copy mt-2 text-sm">
               proposal 現在會盡量和正式 case 使用相同板塊，這樣之後升格時不需要再整份重拆。
               只有「作者 OS / 心裡話」會留在草稿端，不會直接進正式案件。
@@ -120,7 +120,7 @@ export function ProposalForm() {
                 value={draft[section.key]}
                 onChange={(event) => updateDraftField(section.key, event.target.value)}
                 placeholder={`請填寫「${section.label}」`}
-                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
+                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
               />
             </label>
           ))}

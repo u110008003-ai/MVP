@@ -76,12 +76,12 @@ export function SubmissionPanel({ caseId }: SubmissionPanelProps) {
   }
 
   return (
-    <section className="rounded-[2rem] border border-stone-800 bg-white/5 p-6 backdrop-blur">
+    <section className="glass-panel rounded-[2rem] p-6">
       <div>
-        <p className="text-sm font-medium uppercase tracking-[0.24em] text-stone-500">
+        <p className="section-kicker">
           Structured Submission
         </p>
-        <h2 className="mt-2 text-2xl font-semibold text-white">
+        <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
           送出證據、修正或推論
         </h2>
       </div>
@@ -97,8 +97,8 @@ export function SubmissionPanel({ caseId }: SubmissionPanelProps) {
               onClick={() => setSelectedType(option.type)}
               className={`rounded-[1.25rem] border p-4 text-left transition ${
                 isActive
-                  ? "border-amber-400 bg-amber-500/10 text-white"
-                  : "border-stone-800 bg-stone-950/50 text-stone-300 hover:border-stone-700"
+                  ? "border-[var(--color-gold)] bg-[var(--color-surface-chip)] text-[var(--color-text)]"
+                  : "border-[color:var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-muted)] hover:border-[var(--color-gold)]"
               }`}
             >
               <p className="text-base font-semibold">{option.label}</p>
@@ -109,7 +109,7 @@ export function SubmissionPanel({ caseId }: SubmissionPanelProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
-        <div className="rounded-[1.25rem] border border-stone-800 bg-stone-950/50 p-4 text-sm leading-7 text-stone-300">
+        <div className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-chip)] p-4 text-sm leading-7 text-[var(--color-text-soft)]">
           {loading
             ? "正在確認登入狀態..."
             : session?.user
@@ -118,23 +118,23 @@ export function SubmissionPanel({ caseId }: SubmissionPanelProps) {
         </div>
 
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-stone-200">內容</span>
+          <span className="text-sm font-medium text-[var(--color-text-soft)]">內容</span>
           <textarea
             required
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="請描述你的補充內容（至少 10 字）"
-            className="min-h-40 rounded-[1.25rem] border border-stone-800 bg-stone-950/60 px-4 py-3 text-base leading-7 text-white outline-none transition placeholder:text-stone-500 focus:border-amber-400"
+            className="min-h-40 rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-main)] px-4 py-3 text-base leading-8 text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-dim)] focus:border-[var(--color-gold)]"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-stone-200">來源連結（可選）</span>
+          <span className="text-sm font-medium text-[var(--color-text-soft)]">來源連結（可選）</span>
           <input
             value={sourceUrl}
             onChange={(event) => setSourceUrl(event.target.value)}
             placeholder="https://"
-            className="rounded-[1.25rem] border border-stone-800 bg-stone-950/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-stone-500 focus:border-amber-400"
+            className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-main)] px-4 py-3 text-base text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-dim)] focus:border-[var(--color-gold)]"
           />
         </label>
 
@@ -142,14 +142,14 @@ export function SubmissionPanel({ caseId }: SubmissionPanelProps) {
           <button
             type="submit"
             disabled={isPending || loading || !session?.user}
-            className="inline-flex items-center justify-center rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-300"
+            className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-[var(--color-accent-ink)] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:text-[var(--color-text-dim)]"
           >
             {isPending ? "送出中..." : `送出 ${activeOption.label}`}
           </button>
         </div>
 
         {feedback ? (
-          <div className="rounded-[1.25rem] border border-stone-800 bg-stone-950/50 px-4 py-3 text-sm leading-7 text-stone-200">
+          <div className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-chip)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
             {feedback}
           </div>
         ) : null}

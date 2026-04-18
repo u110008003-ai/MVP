@@ -1,55 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #faf9f6;
+  --foreground: #1a1a1a;
 
-  /* 核心面板色系：Midnight Slate */
-  --color-surface-deep: #020617;
-  --color-surface-main: rgba(15, 23, 42, 0.74);
-  --color-surface-card: rgba(30, 41, 59, 0.4);
-  --color-surface-card-strong: rgba(30, 41, 59, 0.58);
-  --color-surface-muted: rgba(51, 65, 85, 0.28);
-  --color-surface-chip: rgba(15, 23, 42, 0.52);
+  /* 核心面板色系：暖白紙張 */
+  --color-surface-deep: #f5f2ea;
+  --color-surface-main: #ffffff;
+  --color-surface-card: #fffdf9;
+  --color-surface-card-strong: #fdfbf7;
+  --color-surface-muted: #f0ece4;
+  --color-surface-chip: #f7f3eb;
 
   /* 文字色系 */
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-text-soft: #dbe7f5;
-  --color-text-dim: #64748b;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5f5a53;
+  --color-text-soft: #2f2b26;
+  --color-text-dim: #8e877d;
 
-  /* 品牌色：琥珀金 */
-  --color-gold: #fbbf24;
-  --color-gold-strong: #fcd34d;
-  --color-gold-muted: rgba(251, 191, 36, 0.14);
-  --color-accent: var(--color-gold);
-  --color-accent-strong: var(--color-gold-strong);
-  --color-accent-ink: #0f172a;
+  /* 強調色：古典墨色 + 舊金細節 */
+  --color-gold: #8a6f4d;
+  --color-gold-strong: #6f583d;
+  --color-gold-muted: rgba(138, 111, 77, 0.1);
+  --color-accent: #1a1a1a;
+  --color-accent-strong: #2a2a2a;
+  --color-accent-ink: #faf9f6;
 
   /* 功能色 */
-  --color-success: #10b981;
-  --color-info: #38bdf8;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  --color-success: #46614b;
+  --color-info: #4d6177;
+  --color-warning: #8a6f4d;
+  --color-danger: #7b4b43;
 
   /* 邊框色 */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-bright: rgba(255, 255, 255, 0.15);
-  --color-line-strong: rgba(251, 191, 36, 0.28);
+  --color-border: rgba(26, 26, 26, 0.1);
+  --color-border-bright: rgba(26, 26, 26, 0.18);
+  --color-line-strong: rgba(138, 111, 77, 0.24);
 
-  /* 陰影與光暈 */
-  --shadow-soft: 0 24px 72px -40px rgba(2, 6, 23, 0.7);
-  --shadow-strong: 0 36px 120px -64px rgba(2, 6, 23, 0.88);
-  --glow-cool: rgba(56, 189, 248, 0.18);
-  --glow-warm: rgba(251, 191, 36, 0.14);
-  --glass-blur: 16px;
+  /* 紙本陰影 */
+  --shadow-soft: 0 14px 34px -28px rgba(26, 26, 26, 0.16);
+  --shadow-strong: 0 24px 60px -44px rgba(26, 26, 26, 0.18);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-noto-sans-tc);
+  --font-display: var(--font-noto-serif-tc);
   --font-mono: var(--font-ibm-plex-mono);
 }
 
@@ -63,24 +60,21 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, var(--glow-cool) 0%, transparent 32%),
-    radial-gradient(circle at 88% 12%, var(--glow-warm) 0%, transparent 28%),
-    linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 1) 44%);
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), "Inter", "system-ui", sans-serif;
-  line-height: 1.75;
+  font-family: var(--font-sans), "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.8;
   min-height: 100vh;
-  background-attachment: fixed;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display), var(--font-sans), "Inter", sans-serif;
+  font-family: var(--font-display), "Noto Serif TC", "Songti TC", serif;
   letter-spacing: -0.02em;
   text-wrap: balance;
+  font-weight: 600;
 }
 
 a,
@@ -92,8 +86,8 @@ summary {
 }
 
 ::selection {
-  background: rgba(251, 191, 36, 0.26);
-  color: #fff;
+  background: rgba(138, 111, 77, 0.18);
+  color: var(--color-text);
 }
 
 ::-webkit-scrollbar {
@@ -107,30 +101,19 @@ summary {
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-dim);
+  background: rgba(26, 26, 26, 0.18);
 }
 
 .page-shell {
   position: relative;
 }
 
-.page-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.1) 0%, transparent 24%),
-    radial-gradient(circle at 78% 16%, rgba(251, 191, 36, 0.08) 0%, transparent 22%);
-  opacity: 0.8;
-}
-
 .glass-panel,
 .glass-panel-strong,
 .glass-chip,
 .metal-chip {
-  backdrop-filter: blur(var(--glass-blur)) saturate(145%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(145%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .glass-panel {
@@ -140,8 +123,7 @@ summary {
 }
 
 .glass-panel-strong {
-  background:
-    linear-gradient(180deg, rgba(30, 41, 59, 0.76) 0%, rgba(15, 23, 42, 0.82) 100%);
+  background: var(--color-surface-main);
   border: 1px solid var(--color-border-bright);
   box-shadow: var(--shadow-strong);
 }
@@ -152,27 +134,15 @@ summary {
 }
 
 .metal-chip {
-  background:
-    linear-gradient(180deg, rgba(251, 191, 36, 0.22) 0%, rgba(251, 191, 36, 0.1) 100%);
-  border: 1px solid rgba(251, 191, 36, 0.34);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: #f4efe6;
+  border: 1px solid rgba(138, 111, 77, 0.24);
+  box-shadow: none;
   color: var(--color-gold);
 }
 
 .hero-halo-cool,
 .hero-halo-warm {
-  pointer-events: none;
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(72px);
-}
-
-.hero-halo-cool {
-  background: var(--glow-cool);
-}
-
-.hero-halo-warm {
-  background: var(--glow-warm);
+  display: none;
 }
 
 .section-kicker {
@@ -190,7 +160,7 @@ summary {
 
 .muted-copy {
   color: var(--color-text-muted);
-  line-height: 1.85;
+  line-height: 1.8;
 }
 
 .line-clamp-home-card {

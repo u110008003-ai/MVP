@@ -104,7 +104,7 @@ export function HomeAuthNav() {
 
   return (
     <details className="group relative">
-      <summary className="glass-chip flex cursor-pointer list-none items-center gap-3 rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] shadow-[0_18px_52px_-36px_rgba(2,6,23,0.7)] transition hover:border-[color:var(--color-border-bright)] hover:text-white">
+      <summary className="glass-chip flex cursor-pointer list-none items-center gap-3 rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]">
         <span>{session?.user ? profile?.display_name || session.user.email : "登入 / 註冊"}</span>
         <span className="text-xs text-[color:var(--color-text-muted)] transition group-open:rotate-180">▾</span>
       </summary>
@@ -116,7 +116,7 @@ export function HomeAuthNav() {
               <p className="text-sm text-[color:var(--color-text-muted)]">目前登入</p>
               <p className="mt-2 text-lg font-semibold">{profile?.display_name || session.user.email}</p>
               <p className="mt-1 text-sm text-[color:var(--color-text-muted)]">{session.user.email}</p>
-              <span className="mt-4 inline-flex rounded-full bg-[color:var(--color-accent)] px-3 py-1 text-xs font-semibold text-[color:var(--color-accent-ink)]">
+              <span className="mt-4 inline-flex rounded-full bg-[color:var(--color-surface-muted)] px-3 py-1 text-xs font-semibold text-[color:var(--color-text)]">
                 {getVisibleRoleLabel(profile?.role)}
               </span>
             </div>
@@ -130,14 +130,14 @@ export function HomeAuthNav() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/proposals"
-                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]"
               >
                 前往提案池
               </Link>
               {profile?.role && (profile.role === "level_3" || profile.role === "level_4") ? (
                 <Link
                   href="/admin/submissions"
-                  className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
+                  className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]"
                 >
                   submissions 管理
                 </Link>
@@ -146,7 +146,7 @@ export function HomeAuthNav() {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white disabled:cursor-not-allowed disabled:text-[color:var(--color-text-dim)]"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:text-[color:var(--color-text-dim)]"
               >
                 登出
               </button>
@@ -156,7 +156,7 @@ export function HomeAuthNav() {
           <div className="grid gap-4">
             <div>
               <p className="section-kicker">Account</p>
-              <h2 className="mt-2 text-xl font-semibold text-white">登入或建立帳號</h2>
+              <h2 className="mt-2 text-xl font-semibold text-[var(--color-text)]">登入或建立帳號</h2>
             </div>
 
             <div className="glass-chip inline-flex w-fit rounded-full p-1">
@@ -169,7 +169,7 @@ export function HomeAuthNav() {
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "sign-in"
                     ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
-                    : "text-[color:var(--color-text-muted)] hover:text-white"
+                    : "text-[color:var(--color-text-muted)] hover:text-[var(--color-text)]"
                 }`}
               >
                 登入
@@ -183,7 +183,7 @@ export function HomeAuthNav() {
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "sign-up"
                     ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
-                    : "text-[color:var(--color-text-muted)] hover:text-white"
+                    : "text-[color:var(--color-text-muted)] hover:text-[var(--color-text)]"
                 }`}
               >
                 註冊
@@ -198,7 +198,7 @@ export function HomeAuthNav() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
-                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
+                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
                 />
               </label>
 
@@ -211,7 +211,7 @@ export function HomeAuthNav() {
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="例如：Alice"
-                    className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
+                    className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
                   />
                 </label>
               ) : null}
@@ -223,7 +223,7 @@ export function HomeAuthNav() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={mode === "sign-up" ? "至少 6 個字元" : "輸入密碼"}
-                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
+                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
                 />
               </label>
 

@@ -10,7 +10,7 @@ export function CollapsibleContentSection({
   defaultOpen = false,
   compact = false,
   badge,
-  surface = "dark",
+  surface = "light",
 }: {
   label: string;
   description?: string;
@@ -26,23 +26,23 @@ export function CollapsibleContentSection({
   const cardClass =
     tone === "success"
       ? isDark
-        ? "border-[oklch(0.65_0.12_140_/_0.2)] bg-[color-mix(in_oklch,#6daa45_6%,#1c1b19)]"
-        : "border-[oklch(0.65_0.12_140_/_0.15)] bg-[color-mix(in_oklch,#6daa45_5%,white)]"
+        ? "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
+        : "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
       : tone === "warning"
         ? isDark
-          ? "border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#1c1b19)]"
-          : "border-[oklch(0.65_0.1_40_/_0.16)] bg-[color-mix(in_oklch,#bb653b_5%,white)]"
+          ? "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
+          : "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
         : tone === "gold"
           ? isDark
-            ? "border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)]"
-            : "border-[oklch(0.75_0.15_80_/_0.18)] bg-[color-mix(in_oklch,#d19900_6%,white)]"
+            ? "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
+            : "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
           : tone === "info"
             ? isDark
-              ? "border-[oklch(0.65_0.08_240_/_0.22)] bg-[color-mix(in_oklch,#4f7cff_7%,#1c1b19)]"
-              : "border-[oklch(0.65_0.08_240_/_0.16)] bg-[color-mix(in_oklch,#4f7cff_5%,white)]"
+              ? "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
+              : "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
             : isDark
-              ? "border-white/10 bg-[var(--color-surface-card)]"
-              : "border-stone-200 bg-stone-50";
+              ? "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]"
+              : "border-[color:var(--color-border)] bg-[color:var(--color-surface-card)]";
 
   const titleClass =
     tone === "success"
@@ -62,7 +62,7 @@ export function CollapsibleContentSection({
           <div className="flex flex-wrap items-center gap-2">
             <h2 className={`text-sm font-medium uppercase tracking-[0.24em] ${titleClass}`}>{label}</h2>
             {badge ? (
-              <span className="rounded-full border border-white/10 bg-black/10 px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]">
+              <span className="rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface-muted)] px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]">
                 {badge}
               </span>
             ) : null}
@@ -78,7 +78,7 @@ export function CollapsibleContentSection({
         </span>
       </summary>
 
-      <div className={`px-5 pb-5 pt-4 ${isDark ? "border-t border-white/10" : "border-t border-stone-200"}`}>
+      <div className={`px-5 pb-5 pt-4 ${isDark ? "border-t border-[color:var(--color-border)]" : "border-t border-stone-200"}`}>
         <ReferenceAwareText value={value} tone={tone} references={references} compact={compact} />
       </div>
     </details>

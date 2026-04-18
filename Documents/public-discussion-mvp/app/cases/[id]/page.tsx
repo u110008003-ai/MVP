@@ -89,7 +89,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <article className="glass-panel rounded-[1.5rem] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+            <article className="glass-panel rounded-[1.5rem] p-6">
               <p className="border-l border-[oklch(0.74_0.02_80_/_0.2)] pl-3 text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
                 核心問題
               </p>
@@ -98,7 +98,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
               </div>
             </article>
 
-            <article className="rounded-[1.5rem] border border-[var(--color-gold)]/20 bg-[var(--color-gold-muted)] p-6 backdrop-blur-[16px]">
+            <article className="rounded-[1.5rem] border border-[color:var(--color-line-strong)] bg-[color:var(--color-surface-chip)] p-6">
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-gold)]">
                 目前暫定結論
               </p>
@@ -200,11 +200,11 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           {caseItem.summary_image_url ? (
-            <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-white/10 bg-[var(--color-surface-card)] p-4">
+            <div className="mt-6 overflow-hidden rounded-[1.5rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-4">
               <img
                 src={caseItem.summary_image_url}
                 alt={`${caseItem.title} 總整理圖`}
-                className="w-full rounded-[1rem] border border-white/10 object-contain"
+                className="w-full rounded-[1rem] border border-[color:var(--color-border)] object-contain"
               />
               {caseItem.summary_image_note ? (
                 <p className="mt-4 text-sm leading-7 text-[var(--color-text-muted)]">
@@ -232,7 +232,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           {acceptedError ? (
-            <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-7 text-[var(--color-text)]">
+            <div className="mt-5 rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-7 text-[var(--color-text)]">
               {acceptedError}
             </div>
           ) : null}
@@ -246,13 +246,13 @@ export default async function CaseDetailPage({ params }: PageProps) {
               acceptedSubmissions.map((submission) => (
                 <article
                   key={submission.id}
-                  className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] p-5"
+                  className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-5"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[var(--color-success)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-success)]">
+                    <span className="rounded-full bg-[var(--color-surface-muted)] px-3 py-1 text-xs font-semibold text-[var(--color-success)]">
                       已採納
                     </span>
-                    <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
+                    <span className="rounded-full bg-[var(--color-surface-muted)] px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
                       {submissionTypeLabel[submission.type]}
                     </span>
                     <span className="text-sm text-[var(--color-text-muted)]">
@@ -290,7 +290,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
 
 function AttributionCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3">
+      <div className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3">
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
         {label}
       </p>
@@ -317,9 +317,9 @@ function StatusBadge({ status }: { status: CaseStatus }) {
   }
 
   return (
-    <span className="rounded-full border border-white/15 bg-[var(--color-surface-card)] px-3 py-1 text-sm font-semibold text-[var(--color-text-muted)]">
-      {statusLabel[status]}
-    </span>
+      <span className="rounded-full border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-sm font-semibold text-[var(--color-text-muted)]">
+        {statusLabel[status]}
+      </span>
   );
 }
 
@@ -342,9 +342,9 @@ function ReferenceLinks({ references }: { references: ReferenceEntry[] }) {
             href={reference.href}
             target="_blank"
             rel="noreferrer"
-            className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
+            className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
           >
-            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-gold-muted)] px-2 text-xs font-semibold text-[var(--color-gold)]">
+            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-surface-muted)] px-2 text-xs font-semibold text-[var(--color-gold)]">
               ({reference.index})
             </span>
             <span>{reference.label}</span>

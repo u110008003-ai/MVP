@@ -32,7 +32,7 @@ export function TimelineExplorer({ value }: { value: string }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-[1.25rem] border border-dashed border-white/15 p-5 text-sm leading-7 text-[var(--color-text-muted)]">
+      <div className="rounded-[1.25rem] border border-dashed border-[color:var(--color-border)] p-5 text-sm leading-7 text-[var(--color-text-muted)]">
         目前還沒有整理事件來龍去脈。
       </div>
     );
@@ -40,9 +40,9 @@ export function TimelineExplorer({ value }: { value: string }) {
 
   if (items.length === 1) {
     return (
-      <div className="rounded-[1.5rem] border border-[var(--color-gold)]/50 bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+      <div className="rounded-[1.5rem] border border-[color:var(--color-line-strong)] bg-[var(--color-surface-card)] p-6">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-black/20 px-3 text-sm font-semibold text-[var(--color-text)]">
+          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[var(--color-surface-muted)] px-3 text-sm font-semibold text-[var(--color-text)]">
             1
           </span>
           <p className="text-sm font-medium uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
@@ -70,8 +70,8 @@ export function TimelineExplorer({ value }: { value: string }) {
                 onClick={() => setActiveIndex(index)}
                 className={`rounded-full border px-4 py-2 text-sm transition ${
                   isActive
-                    ? "border-[var(--color-gold)] bg-[color-mix(in_oklch,#d19900_10%,#1c1b19)] text-[var(--color-text)]"
-                    : "border-white/10 bg-[var(--color-surface-card)] text-[var(--color-text-muted)] hover:border-white/20 hover:text-[var(--color-text)]"
+                    ? "border-[var(--color-gold)] bg-[var(--color-surface-chip)] text-[var(--color-text)]"
+                    : "border-[color:var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-muted)] hover:border-[var(--color-gold)] hover:text-[var(--color-text)]"
                 }`}
               >
                 {index + 1}. {getHeadline(item)}
@@ -80,7 +80,7 @@ export function TimelineExplorer({ value }: { value: string }) {
           })}
         </div>
 
-        <div className="rounded-[1.5rem] border border-white/10 bg-[var(--color-surface-card)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+        <div className="rounded-[1.5rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-6">
           <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
             單行細看
           </p>
@@ -110,11 +110,11 @@ export function TimelineExplorer({ value }: { value: string }) {
               onClick={() => setActiveIndex(index)}
               className={`rounded-[1rem] border px-4 py-3 text-left text-sm leading-6 transition ${
                 isActive
-                  ? "border-[var(--color-gold)] bg-[color-mix(in_oklch,#d19900_10%,#1c1b19)] text-[var(--color-text)]"
-                  : "border-white/10 bg-[var(--color-surface-card)] text-[var(--color-text-muted)] hover:border-white/20 hover:text-[var(--color-text)]"
+                  ? "border-[var(--color-gold)] bg-[var(--color-surface-chip)] text-[var(--color-text)]"
+                  : "border-[color:var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-muted)] hover:border-[var(--color-gold)] hover:text-[var(--color-text)]"
               }`}
             >
-              <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-black/20 px-2 text-xs font-semibold">
+              <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-surface-muted)] px-2 text-xs font-semibold">
                 {index + 1}
               </span>
               {getHeadline(item)}
@@ -123,7 +123,7 @@ export function TimelineExplorer({ value }: { value: string }) {
         })}
       </div>
 
-      <div className="rounded-[1.5rem] border border-white/10 bg-[var(--color-surface-card)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+      <div className="rounded-[1.5rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-6">
         <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
           單行細看
         </p>

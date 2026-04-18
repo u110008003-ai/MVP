@@ -28,17 +28,14 @@ export default async function Home() {
           <HomeAuthNav />
         </header>
 
-        <section className="glass-panel-strong relative overflow-hidden rounded-[2.8rem] p-8 md:p-10">
-          <div className="hero-halo-cool right-[-6rem] top-[-8rem] h-72 w-72" />
-          <div className="hero-halo-warm bottom-[-10rem] left-[30%] h-72 w-72" />
-
+        <section className="glass-panel-strong relative rounded-[2.2rem] p-8 md:p-12">
           <div className="relative grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="max-w-4xl">
-              <p className="glass-chip inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-soft)]">
+              <p className="glass-chip inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-muted)]">
                 公共討論平台 MVP
               </p>
 
-              <h1 className="mt-8 max-w-4xl text-5xl font-black leading-[1.02] tracking-[-0.05em] text-white md:text-7xl">
+              <h1 className="mt-8 max-w-4xl text-5xl leading-[1.12] tracking-[-0.05em] text-[var(--color-text)] md:text-7xl">
                 把情緒降到最低，
                 <br />
                 <span className="text-[color:var(--color-accent-strong)]">把判斷拉到前面。</span>
@@ -48,20 +45,20 @@ export default async function Home() {
                 不是幫你選邊站，而是陪你看清楚：哪些是事實，哪些只是話術。
               </p>
 
-              <p className="glass-chip mt-5 inline-flex max-w-3xl rounded-[1.5rem] px-5 py-4 text-base font-semibold leading-8 text-[color:var(--color-gold-strong)]">
+              <p className="mt-6 max-w-3xl border-l border-[color:var(--color-line-strong)] pl-5 text-base font-medium leading-8 text-[color:var(--color-gold-strong)]">
                 當別人忙著表態，這個網站忙著把事情講清楚。
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
                   href="#cases"
-                  className="rounded-full bg-[color:var(--color-accent)] px-5 py-3 text-sm font-bold text-[color:var(--color-accent-ink)] shadow-[0_22px_44px_-30px_rgba(251,191,36,0.45)] transition hover:-translate-y-0.5 hover:bg-[color:var(--color-accent-strong)]"
+                  className="rounded-full bg-[color:var(--color-accent)] px-5 py-3 text-sm font-semibold text-[color:var(--color-accent-ink)] transition hover:bg-[color:var(--color-accent-strong)]"
                 >
                   先看案件
                 </a>
                 <a
                   href="#participation"
-                  className="glass-chip rounded-full px-5 py-3 text-sm font-semibold text-[color:var(--color-text-soft)] transition hover:-translate-y-0.5 hover:border-[color:var(--color-border-bright)] hover:text-white"
+                  className="rounded-full border border-[color:var(--color-border-bright)] bg-[color:var(--color-surface-main)] px-5 py-3 text-sm font-semibold text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[color:var(--color-text)]"
                 >
                   了解怎麼參與
                 </a>
@@ -79,7 +76,7 @@ export default async function Home() {
               />
               <div className="glass-chip rounded-[1.6rem] p-5">
                 <p className="section-kicker">Platform Signal</p>
-                <p className="mt-3 text-lg font-semibold text-white">公開案件會持續補證據、修訂與更新。</p>
+                <p className="mt-3 text-lg font-semibold text-[var(--color-text)]">公開案件會持續補證據、修訂與更新。</p>
                 <p className="muted-copy mt-2 text-sm">
                   不是用更大的聲量贏，而是用更清楚的整理讓人判斷。
                 </p>
@@ -92,7 +89,7 @@ export default async function Home() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="section-kicker">Case List</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">目前正在整理的案件</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">目前正在整理的案件</h2>
               <p className="muted-copy mt-3 max-w-2xl text-sm">
                 先看每個案件的摘要，再點進去看完整脈絡、證據、修訂紀錄與參考連結。
               </p>
@@ -101,7 +98,7 @@ export default async function Home() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/proposals"
-                className="glass-chip rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
+                className="rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[color:var(--color-text)]"
               >
                 前往提案池
               </Link>
@@ -124,7 +121,7 @@ export default async function Home() {
                 <Link
                   key={caseItem.id}
                   href={`/cases/${caseItem.id}`}
-                  className="glass-panel group rounded-[1.9rem] p-6 transition hover:-translate-y-0.5 hover:border-[color:var(--color-line-strong)] hover:shadow-[0_18px_60px_-30px_rgba(2,6,23,0.95)]"
+                  className="glass-panel group rounded-[1.9rem] p-6 transition hover:border-[color:var(--color-line-strong)]"
                 >
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 max-w-3xl">
@@ -132,7 +129,7 @@ export default async function Home() {
                         {statusLabel[caseItem.status]}
                       </span>
 
-                      <h3 className="mt-4 text-2xl font-semibold leading-tight text-white transition group-hover:text-[color:var(--color-accent-strong)]">
+                      <h3 className="mt-4 text-2xl font-semibold leading-tight text-[var(--color-text)] transition group-hover:text-[color:var(--color-gold-strong)]">
                         {caseItem.title}
                       </h3>
 
@@ -154,7 +151,7 @@ export default async function Home() {
                         <p className="line-clamp-home-card mt-3 text-[15px] leading-8 text-[color:var(--color-text-soft)]">
                           {buildCardSummary(caseItem.stable_conclusion || caseItem.question)}
                         </p>
-                        <p className="mt-3 text-sm font-semibold text-[color:var(--color-accent-strong)]">
+                        <p className="mt-3 text-sm font-semibold text-[color:var(--color-gold-strong)]">
                           查看更多
                         </p>
                       </div>
@@ -163,7 +160,7 @@ export default async function Home() {
                     <div className="grid shrink-0 gap-3 lg:w-[220px]">
                       <div className="glass-chip rounded-[1.25rem] px-4 py-3 text-sm text-[color:var(--color-text-muted)]">
                         最後更新
-                        <div className="mt-1 font-semibold text-white">
+                        <div className="mt-1 font-semibold text-[var(--color-text)]">
                           {formatRelativeTime(caseItem.updated_at)}
                         </div>
                       </div>
@@ -181,7 +178,7 @@ export default async function Home() {
         >
           <article className="glass-chip flex flex-col justify-center rounded-[1.25rem] p-6 text-center lg:px-10">
             <p className="section-kicker">你能做什麼</p>
-            <h2 className="mt-3 text-xl font-semibold text-white">不是先表態，是先補內容</h2>
+            <h2 className="mt-3 text-xl font-semibold text-[var(--color-text)]">不是先表態，是先補內容</h2>
             <p className="muted-copy mt-3 text-sm">
               看完案件之後，你可以依照自己的層級補證據、提新題目，或參與整理。
             </p>
@@ -191,15 +188,15 @@ export default async function Home() {
             <p className="section-kicker">Participation Levels</p>
             <div className="mt-4 grid gap-4 text-sm leading-7 text-[color:var(--color-text-soft)] sm:grid-cols-3">
               <div className="glass-panel rounded-[1rem] p-4">
-                <p className="font-semibold text-white">Level 1</p>
+                <p className="font-semibold text-[var(--color-text)]">Level 1</p>
                 <p className="mt-2 text-[color:var(--color-text-soft)]">補充證據、指出錯誤、修正推論</p>
               </div>
               <div className="glass-panel rounded-[1rem] p-4">
-                <p className="font-semibold text-white">Level 2</p>
+                <p className="font-semibold text-[var(--color-text)]">Level 2</p>
                 <p className="mt-2 text-[color:var(--color-text-soft)]">提出新題目</p>
               </div>
               <div className="glass-panel rounded-[1rem] p-4">
-                <p className="font-semibold text-white">Level 3</p>
+                <p className="font-semibold text-[var(--color-text)]">Level 3</p>
                 <p className="mt-2 text-[color:var(--color-text-soft)]">整理案件、管理內容、升格結論</p>
               </div>
             </div>
@@ -213,7 +210,7 @@ export default async function Home() {
 function AttributionPill({ label, value }: { label: string; value: string }) {
   return (
     <span className="glass-chip inline-flex rounded-full px-3 py-1 text-xs font-semibold text-[color:var(--color-text-muted)]">
-      {label}：<span className="ml-1 text-white">{value}</span>
+      {label}：<span className="ml-1 text-[var(--color-text)]">{value}</span>
     </span>
   );
 }
@@ -228,7 +225,7 @@ function HeroSignalCard({
   return (
     <div className="glass-chip rounded-[1.6rem] p-5">
       <p className="section-kicker">Reading Method</p>
-      <p className="mt-3 text-lg font-semibold text-white">{title}</p>
+      <p className="mt-3 text-lg font-semibold text-[var(--color-text)]">{title}</p>
       <p className="muted-copy mt-2 text-sm">{description}</p>
     </div>
   );

@@ -275,7 +275,7 @@ function ProposalCard({
             <input
               value={editTitle}
               onChange={(event) => setEditTitle(event.target.value)}
-              className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-base text-white outline-none transition focus:border-[color:var(--color-accent)]"
+              className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-base text-[var(--color-text)] outline-none transition focus:border-[color:var(--color-gold)]"
             />
           </label>
 
@@ -293,7 +293,7 @@ function ProposalCard({
               <textarea
                 value={editDraft[section.key]}
                 onChange={(event) => updateEditDraftField(section.key, event.target.value)}
-                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition focus:border-[color:var(--color-accent)]"
+                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition focus:border-[color:var(--color-gold)]"
               />
             </label>
           ))}
@@ -306,7 +306,7 @@ function ProposalCard({
                 resetEditState();
                 setIsEditing(false);
               }}
-              className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
+              className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
             >
               取消
             </button>
@@ -325,7 +325,7 @@ function ProposalCard({
         </div>
       ) : (
         <>
-          <h2 className="mt-4 text-xl font-semibold text-white">{proposal.title}</h2>
+          <h2 className="mt-4 text-xl font-semibold text-[var(--color-text)]">{proposal.title}</h2>
           <p className="muted-copy mt-2 text-sm">
             提案板塊現在會盡量對齊正式案件，方便之後直接升格整理。
           </p>
@@ -363,7 +363,7 @@ function ProposalCard({
               setIsEditing(true);
             }}
             disabled={isPending}
-            className="glass-chip inline-flex rounded-full border-[color:var(--color-line-strong)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-strong)] transition hover:border-[color:var(--color-accent)] disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
+            className="glass-chip inline-flex rounded-full border-[color:var(--color-line-strong)] px-4 py-2 text-sm font-semibold text-[var(--color-gold-strong)] transition hover:border-[color:var(--color-gold)] disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
           >
             編輯我的提案
           </button>
@@ -372,7 +372,7 @@ function ProposalCard({
         {proposal.promoted_case_id ? (
           <Link
             href={`/cases/${proposal.promoted_case_id}`}
-            className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
+            className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]"
           >
             查看已建立案件
           </Link>

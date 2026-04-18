@@ -68,18 +68,18 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     const sourceContent = form[source].trim();
 
     if (!sourceContent) {
-      setFeedback(`目前「${fieldLabel[source]}」是空的，還沒有可轉移的內容。`);
+      setFeedback(`「${fieldLabel[source]}」目前沒有內容可移入。`);
       return;
     }
 
     if (source === target) {
-      setFeedback("來源欄位和目標欄位不能是同一個。");
+      setFeedback("來源欄位和目標欄位相同，這次沒有進行移動。");
       return;
     }
 
     setForm((current) => {
       const targetContent = current[target].trim();
-      const sourceBlock = `[轉入自 ${fieldLabel[source]}]\n${sourceContent}`;
+      const sourceBlock = `[整理自：${fieldLabel[source]}]\n${sourceContent}`;
 
       return {
         ...current,
@@ -87,7 +87,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       };
     });
 
-    setFeedback(`已把「${fieldLabel[source]}」的內容附加到「${fieldLabel[target]}」。`);
+    setFeedback(`已把「${fieldLabel[source]}」整理進「${fieldLabel[target]}」。`);
   }
 
   function handleImageUpload(file: File | null) {
@@ -98,12 +98,12 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     }
 
     if (!session?.user || !canEditCase) {
-      setFeedback("只有 Level 4 隱藏管理員可以上傳或替換案件總整理圖。");
+      setFeedback("目前只有管理端可以上傳總整理圖。");
       return;
     }
 
     if (!supabase) {
-      setFeedback("目前沒有 Supabase 連線，無法上傳圖片。");
+      setFeedback("Supabase 尚未完成設定，暫時無法上傳圖片。");
       return;
     }
 
@@ -114,17 +114,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         .toString(36)
         .slice(2)}.${safeExtension}`;
 
-      const storageBucket = "case-assets";
-      const storage = supabase.storage.from(storageBucket);
+      const storage = supabase.storage.from("case-assets");
       const uploadResult = await storage.upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
       });
 
       if (uploadResult.error) {
-        setFeedback(
-          `圖片上傳失敗：${uploadResult.error.message}。請先建立 Storage bucket 與 policy。`,
-        );
+        setFeedback(`圖片上傳失敗：${uploadResult.error.message}`);
         return;
       }
 
@@ -134,7 +131,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         ...current,
         summary_image_url: publicUrl,
       }));
-      setFeedback("圖片已上傳，總整理圖網址已自動填入。記得再按一次「儲存案件」。");
+      setFeedback("圖片已上傳，總整理圖網址已自動帶入。");
     });
   }
 
@@ -148,7 +145,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     }
 
     if (!canEditCase) {
-      setFeedback("只有 Level 4 隱藏管理員可以編輯正式案件。");
+      setFeedback("目前只有管理端可以編輯正式案件。");
       return;
     }
 
@@ -169,7 +166,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         return;
       }
 
-      setFeedback(data.message ?? "案件已儲存。");
+      setFeedback(data.message ?? "案件內容已更新。");
       router.refresh();
     });
   }
@@ -183,13 +180,11 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     }
 
     if (!canDeleteCase) {
-      setFeedback("只有 Level 4 隱藏管理員可以刪除案件。");
+      setFeedback("目前只有管理端可以刪除正式案件。");
       return;
     }
 
-    const confirmed = window.confirm(
-      `你確定要刪除「${caseItem.title}」嗎？\n刪除後資料無法復原。`,
-    );
+    const confirmed = window.confirm(`確定要刪除「${caseItem.title}」嗎？這個動作無法復原。`);
 
     if (!confirmed) {
       return;
@@ -216,24 +211,26 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-5">
-      <section className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-stone-500">
-          內容搬運
-        </p>
-        <p className="mt-2 text-sm leading-7 text-stone-700">
-          如果某個欄位已經整理得差不多，可以先搬到另一個欄位，再做後續精修。
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
+    <form onSubmit={handleSubmit} className="grid gap-6">
+      <section className="glass-panel grid gap-4 p-5">
+        <div className="space-y-2">
+          <p className="section-kicker">整理工具</p>
+          <h2 className="font-serif text-2xl text-[var(--color-text)]">編輯正式案件</h2>
+          <p className="text-sm leading-8 text-[var(--color-text-soft)]">
+            這裡是正式案件的總編輯區。你可以把不同板塊的內容抽出、重組，再整理成更穩定的公開版本。
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
           {transferPresets.map((preset) => (
             <button
               key={`${preset.source}-${preset.target}`}
               type="button"
               disabled={!canEditCase || isSaving || isDeleting || isUploadingImage}
               onClick={() => transferField(preset.source, preset.target)}
-              className="rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-stone-500 hover:bg-white disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-400"
+              className="glass-chip rounded-full px-3 py-2 text-xs font-semibold tracking-[0.08em] text-[var(--color-text-soft)] transition hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)]"
             >
-              {fieldLabel[preset.source]} {"->"} {fieldLabel[preset.target]}
+              {fieldLabel[preset.source]} → {fieldLabel[preset.target]}
             </button>
           ))}
         </div>
@@ -241,7 +238,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Field
         label={fieldLabel.question}
-        hint="先用一句到一段話講清楚：這個案件到底要回答什麼問題。"
+        hint="用一句話說清楚這個案件真正要回答的問題。"
         value={form.question}
         onChange={(value) => updateField("question", value)}
         minHeight="min-h-28"
@@ -250,18 +247,19 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Field
         label={fieldLabel.narrative_timeline}
-        hint="建議一行寫一個時間點、人物行動或重要轉折。"
+        hint="依時間順序把事件拆開，方便讀者理解事情的來龍去脈。"
         value={form.narrative_timeline}
         onChange={(value) => updateField("narrative_timeline", value)}
-        minHeight="min-h-40"
+        minHeight="min-h-44"
         disabled={!canEditCase}
       />
 
       <Field
         label={fieldLabel.stable_conclusion}
+        hint="這裡放目前對外公開的暫定結論，文字要穩，不要寫得像情緒發言。"
         value={form.stable_conclusion}
         onChange={(value) => updateField("stable_conclusion", value)}
-        minHeight="min-h-28"
+        minHeight="min-h-32"
         disabled={!canEditCase}
       />
 
@@ -274,7 +272,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Field
         label={fieldLabel.possible_explanations}
-        hint="把目前這個現象可能有哪些解釋先列出來，和已確認事實分開。"
+        hint="列出目前可能的解釋，但避免把猜測直接寫成定論。"
         value={form.possible_explanations}
         onChange={(value) => updateField("possible_explanations", value)}
         disabled={!canEditCase}
@@ -296,7 +294,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Field
         label={fieldLabel.reference_links}
-        hint="一行放一個連結，網址可以是文章、貼文、文件、資料來源。"
+        hint="一行一筆參考連結。若內文引用 (1)、(2)，這裡的順序就會對應到引用編號。"
         value={form.reference_links}
         onChange={(value) => updateField("reference_links", value)}
         disabled={!canEditCase}
@@ -309,16 +307,17 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         disabled={!canEditCase}
       />
 
-      <section className="grid gap-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4">
-        <div>
-          <h3 className="text-sm font-semibold text-stone-900">總整理圖</h3>
-          <p className="mt-1 text-xs leading-6 text-stone-500">
-            你現在可以直接選圖片上傳。上傳成功後會自動填入網址，然後再按一次「儲存案件」即可。
+      <section className="glass-panel grid gap-4 p-5">
+        <div className="space-y-2">
+          <p className="section-kicker">總整理圖</p>
+          <h3 className="font-serif text-xl text-[var(--color-text)]">圖片與圖說</h3>
+          <p className="text-sm leading-8 text-[var(--color-text-soft)]">
+            若你有一張能快速幫讀者理解脈絡的整理圖，可以在這裡上傳，或直接貼上圖片網址。
           </p>
         </div>
 
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-stone-700">直接上傳圖片</span>
+          <span className="text-sm font-medium text-[var(--color-text-soft)]">上傳圖片</span>
           <input
             type="file"
             accept="image/*"
@@ -328,19 +327,19 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
               handleImageUpload(file);
               event.currentTarget.value = "";
             }}
-            className="rounded-[1rem] border border-stone-300 bg-white px-4 py-3 text-sm text-stone-700 file:mr-3 file:rounded-full file:border-0 file:bg-stone-950 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+            className="rounded-[1rem] border border-[var(--color-border)] bg-[var(--color-surface-main)] px-4 py-3 text-sm text-[var(--color-text-soft)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-text)] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[var(--color-accent-ink)]"
           />
         </label>
 
         {isUploadingImage ? (
-          <div className="rounded-[1rem] border border-stone-200 bg-white px-4 py-3 text-sm leading-7 text-stone-700">
+          <div className="rounded-[1rem] border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-8 text-[var(--color-text-soft)]">
             圖片上傳中...
           </div>
         ) : null}
 
         <Field
           label={fieldLabel.summary_image_url}
-          hint="如果你已經有現成圖片網址，也可以直接貼這裡。"
+          hint="若不想上傳，也可以直接貼圖片網址。"
           value={form.summary_image_url}
           onChange={(value) => updateField("summary_image_url", value)}
           minHeight="min-h-0"
@@ -350,7 +349,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Field
         label={fieldLabel.summary_image_note}
-        hint="可以補充圖的來源、閱讀方式或一句總結。"
+        hint="補充這張圖要怎麼看、各區塊代表什麼。"
         value={form.summary_image_note}
         onChange={(value) => updateField("summary_image_note", value)}
         minHeight="min-h-24"
@@ -363,7 +362,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
             type="button"
             onClick={handleDeleteCase}
             disabled={isSaving || isDeleting || isUploadingImage}
-            className="inline-flex items-center justify-center rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:border-stone-300 disabled:text-stone-400"
+            className="inline-flex items-center justify-center rounded-full border border-[#d8c3bc] bg-[var(--color-surface-main)] px-5 py-3 text-sm font-semibold text-[#8d4d3d] transition hover:bg-[#f4eeea] disabled:cursor-not-allowed disabled:border-[var(--color-border)] disabled:text-[var(--color-text-muted)]"
           >
             {isDeleting ? "刪除中..." : "刪除案件"}
           </button>
@@ -372,14 +371,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         <button
           type="submit"
           disabled={!canEditCase || isSaving || isDeleting || isUploadingImage}
-          className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+          className="inline-flex items-center justify-center rounded-full bg-[var(--color-text)] px-5 py-3 text-sm font-semibold text-[var(--color-accent-ink)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-[var(--color-text-muted)]"
         >
           {isSaving ? "儲存中..." : "儲存案件"}
         </button>
       </div>
 
       {feedback ? (
-        <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
+        <div className="rounded-[1.25rem] border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-8 text-[var(--color-text-soft)]">
           {feedback}
         </div>
       ) : null}
@@ -403,14 +402,14 @@ function Field({
   disabled?: boolean;
 }) {
   return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium text-stone-700">{label}</span>
-      {hint ? <span className="text-xs leading-6 text-stone-500">{hint}</span> : null}
+    <label className="grid gap-3">
+      <span className="font-serif text-xl text-[var(--color-text)]">{label}</span>
+      {hint ? <span className="text-sm leading-8 text-[var(--color-text-muted)]">{hint}</span> : null}
       <textarea
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={`rounded-[1.25rem] border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-500 ${minHeight}`}
+        className={`rounded-[1.25rem] border border-[var(--color-border)] bg-[var(--color-surface-main)] px-5 py-4 text-base leading-8 text-[var(--color-text)] outline-none transition placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)] disabled:cursor-not-allowed disabled:bg-[var(--color-surface-muted)] disabled:text-[var(--color-text-muted)] ${minHeight}`}
       />
     </label>
   );
