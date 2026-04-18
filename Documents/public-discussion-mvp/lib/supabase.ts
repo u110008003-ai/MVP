@@ -2,6 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 
 let supabaseClient: ReturnType<typeof createClient> | null = null;
 
+function noStoreFetch(input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) {
+  return fetch(input, {
+    ...init,
+    cache: "no-store",
+  });
+}
+
 export function getSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,6 +21,9 @@ export function getSupabaseServerClient() {
     supabaseClient = createClient(url, anonKey, {
       auth: {
         persistSession: false,
+      },
+      global: {
+        fetch: noStoreFetch,
       },
     });
   }
@@ -34,6 +44,7 @@ export function getSupabaseServerClientForToken(accessToken: string) {
       persistSession: false,
     },
     global: {
+      fetch: noStoreFetch,
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
