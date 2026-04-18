@@ -49,16 +49,16 @@ export default async function CaseDetailPage({ params }: PageProps) {
   const references = parseReferenceLinks(caseItem.reference_links);
 
   return (
-    <main className="min-h-screen bg-[var(--color-surface-deep)] px-6 py-10 text-[var(--color-text)]">
+    <main className="page-shell min-h-screen px-6 py-10 text-[var(--color-text)]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
         <Link
           href="/"
-          className="inline-flex w-fit rounded-full border border-white/15 px-4 py-2 text-sm text-[var(--color-text-muted)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
+          className="glass-chip inline-flex w-fit rounded-full px-4 py-2 text-sm text-[var(--color-text-muted)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
         >
           返回首頁
         </Link>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-8 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.7)]">
+        <section className="glass-panel-strong rounded-[2rem] p-8">
           <div className="flex flex-wrap items-center gap-3">
             <StatusBadge status={caseItem.status} />
             <span className="text-sm text-[var(--color-text-muted)]">
@@ -89,7 +89,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <article className="rounded-[1.5rem] border border-[oklch(0.72_0.02_80_/_0.2)] bg-[#1e1d1b] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+            <article className="glass-panel rounded-[1.5rem] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
               <p className="border-l border-[oklch(0.74_0.02_80_/_0.2)] pl-3 text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
                 核心問題
               </p>
@@ -98,7 +98,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
               </div>
             </article>
 
-            <article className="rounded-[1.5rem] border border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)] p-6">
+            <article className="rounded-[1.5rem] border border-[var(--color-gold)]/20 bg-[var(--color-gold-muted)] p-6 backdrop-blur-[16px]">
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-gold)]">
                 目前暫定結論
               </p>
@@ -110,22 +110,20 @@ export default async function CaseDetailPage({ params }: PageProps) {
         </section>
 
         {error ? (
-          <section className="rounded-[1.5rem] border border-[oklch(0.75_0.15_80_/_0.25)] bg-[color-mix(in_oklch,#d19900_8%,#1c1b19)] p-5 text-sm leading-7 text-[var(--color-text)]">
+          <section className="rounded-[1.5rem] border border-[var(--color-gold)]/20 bg-[var(--color-gold-muted)] p-5 text-sm leading-7 text-[var(--color-text)]">
             {error}
           </section>
         ) : null}
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+        <section className="glass-panel rounded-[2rem] p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
-                Narrative
-              </p>
+              <p className="section-kicker">Narrative</p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
                 事件來龍去脈
               </h2>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+            <p className="muted-copy max-w-2xl text-sm">
               這個區塊會把整件事拆成多行，每一行都能單獨點開檢視，方便逐段討論。
             </p>
           </div>
@@ -174,15 +172,13 @@ export default async function CaseDetailPage({ params }: PageProps) {
           />
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+        <section className="glass-panel rounded-[2rem] p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
-                Reference Links
-              </p>
+              <p className="section-kicker">Reference Links</p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">參考連結</h2>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+            <p className="muted-copy max-w-2xl text-sm">
               這裡適合集中放外部文章、原始貼文、整理串、雲端文件等可直接點開的連結。
             </p>
           </div>
@@ -192,15 +188,13 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+        <section className="glass-panel rounded-[2rem] p-6">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
-                Overview Graphic
-              </p>
+              <p className="section-kicker">Overview Graphic</p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">總整理圖</h2>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-[var(--color-text-muted)]">
+            <p className="muted-copy max-w-2xl text-sm">
               可以放流程圖、關係圖、時間軸整理圖，讓第一次進來的人先快速看懂整體脈絡。
             </p>
           </div>
@@ -225,12 +219,10 @@ export default async function CaseDetailPage({ params }: PageProps) {
           )}
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[var(--color-surface-main)] p-6">
+        <section className="glass-panel rounded-[2rem] p-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-[var(--color-text-muted)]">
-                Accepted Submissions
-              </p>
+              <p className="section-kicker">Accepted Submissions</p>
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
                 已採納的補充內容
               </h2>
@@ -240,7 +232,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           </div>
 
           {acceptedError ? (
-            <div className="mt-5 rounded-[1.25rem] border border-[oklch(0.65_0.1_40_/_0.2)] bg-[color-mix(in_oklch,#bb653b_6%,#1c1b19)] px-4 py-3 text-sm leading-7 text-[var(--color-text)]">
+            <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-muted)] px-4 py-3 text-sm leading-7 text-[var(--color-text)]">
               {acceptedError}
             </div>
           ) : null}
@@ -257,7 +249,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
                   className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] p-5"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[color-mix(in_oklch,#6daa45_22%,#1c1b19)] px-3 py-1 text-xs font-semibold text-[var(--color-success)]">
+                    <span className="rounded-full bg-[var(--color-success)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-success)]">
                       已採納
                     </span>
                     <span className="rounded-full bg-black/30 px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
@@ -310,7 +302,7 @@ function AttributionCard({ label, value }: { label: string; value: string }) {
 function StatusBadge({ status }: { status: CaseStatus }) {
   if (status === "formal") {
     return (
-      <span className="rounded-full bg-[var(--color-gold)] px-3 py-1 text-sm font-semibold text-[#1c1b00] shadow-[0_0_8px_oklch(0.75_0.15_80_/_0.3)]">
+      <span className="rounded-full bg-[var(--color-gold)] px-3 py-1 text-sm font-semibold text-[var(--color-surface-deep)] shadow-[0_0_8px_rgba(251,191,36,0.3)]">
         {statusLabel[status]}
       </span>
     );
@@ -318,7 +310,7 @@ function StatusBadge({ status }: { status: CaseStatus }) {
 
   if (status === "proposal") {
     return (
-      <span className="rounded-full border border-[oklch(0.75_0.15_80_/_0.2)] bg-[color-mix(in_oklch,#d19900_6%,#1c1b19)] px-3 py-1 text-sm font-semibold text-[var(--color-gold)]">
+      <span className="rounded-full border border-[var(--color-gold)]/20 bg-[var(--color-gold-muted)] px-3 py-1 text-sm font-semibold text-[var(--color-gold)]">
         {statusLabel[status]}
       </span>
     );
@@ -352,7 +344,7 @@ function ReferenceLinks({ references }: { references: ReferenceEntry[] }) {
             rel="noreferrer"
             className="rounded-[1.25rem] border border-white/10 bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
           >
-            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[color-mix(in_oklch,#d19900_18%,#1c1b19)] px-2 text-xs font-semibold text-[var(--color-gold)]">
+            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-gold-muted)] px-2 text-xs font-semibold text-[var(--color-gold)]">
               ({reference.index})
             </span>
             <span>{reference.label}</span>

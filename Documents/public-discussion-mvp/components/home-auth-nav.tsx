@@ -104,24 +104,24 @@ export function HomeAuthNav() {
 
   return (
     <details className="group relative">
-      <summary className="flex cursor-pointer list-none items-center gap-3 rounded-full border border-stone-300/80 bg-white/90 px-4 py-2 text-sm font-medium text-stone-700 shadow-sm backdrop-blur transition hover:border-stone-400 hover:text-stone-950">
+      <summary className="glass-chip flex cursor-pointer list-none items-center gap-3 rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] shadow-[0_18px_52px_-36px_rgba(2,6,23,0.7)] transition hover:border-[color:var(--color-border-bright)] hover:text-white">
         <span>{session?.user ? profile?.display_name || session.user.email : "登入 / 註冊"}</span>
-        <span className="text-xs text-stone-500 transition group-open:rotate-180">▾</span>
+        <span className="text-xs text-[color:var(--color-text-muted)] transition group-open:rotate-180">▾</span>
       </summary>
 
-      <div className="absolute right-0 z-20 mt-3 w-[min(92vw,24rem)] rounded-[1.5rem] border border-stone-200 bg-white p-5 shadow-[0_24px_60px_-32px_rgba(28,25,23,0.35)]">
+      <div className="glass-panel-strong absolute right-0 z-20 mt-3 w-[min(92vw,24rem)] rounded-[1.5rem] p-5">
         {session?.user ? (
           <div className="grid gap-4">
-            <div className="rounded-[1.25rem] bg-stone-950 p-4 text-stone-50">
-              <p className="text-sm text-stone-300">目前登入</p>
+            <div className="glass-chip rounded-[1.25rem] p-4 text-[color:var(--color-text)]">
+              <p className="text-sm text-[color:var(--color-text-muted)]">目前登入</p>
               <p className="mt-2 text-lg font-semibold">{profile?.display_name || session.user.email}</p>
-              <p className="mt-1 text-sm text-stone-300">{session.user.email}</p>
-              <span className="mt-4 inline-flex rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold text-stone-950">
+              <p className="mt-1 text-sm text-[color:var(--color-text-muted)]">{session.user.email}</p>
+              <span className="mt-4 inline-flex rounded-full bg-[color:var(--color-accent)] px-3 py-1 text-xs font-semibold text-[color:var(--color-accent-ink)]">
                 {getVisibleRoleLabel(profile?.role)}
               </span>
             </div>
 
-            <div className="grid gap-2 text-sm leading-7 text-stone-600">
+            <div className="grid gap-2 text-sm leading-7 text-[color:var(--color-text-soft)]">
               <p>Level 1：補充證據、指出錯誤、修正推論</p>
               <p>Level 2：提出新題目</p>
               <p>Level 3：整理案件、管理內容、升格結論</p>
@@ -130,14 +130,14 @@ export function HomeAuthNav() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/proposals"
-                className="inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:bg-stone-50"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
               >
                 前往提案池
               </Link>
               {profile?.role && (profile.role === "level_3" || profile.role === "level_4") ? (
                 <Link
                   href="/admin/submissions"
-                  className="inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:bg-stone-50"
+                  className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
                 >
                   submissions 管理
                 </Link>
@@ -146,7 +146,7 @@ export function HomeAuthNav() {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:text-stone-400"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white disabled:cursor-not-allowed disabled:text-[color:var(--color-text-dim)]"
               >
                 登出
               </button>
@@ -155,11 +155,11 @@ export function HomeAuthNav() {
         ) : (
           <div className="grid gap-4">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">Account</p>
-              <h2 className="mt-2 text-xl font-semibold text-stone-950">登入或建立帳號</h2>
+              <p className="section-kicker">Account</p>
+              <h2 className="mt-2 text-xl font-semibold text-white">登入或建立帳號</h2>
             </div>
 
-            <div className="inline-flex w-fit rounded-full border border-stone-200 bg-stone-50 p-1">
+            <div className="glass-chip inline-flex w-fit rounded-full p-1">
               <button
                 type="button"
                 onClick={() => {
@@ -167,7 +167,9 @@ export function HomeAuthNav() {
                   setFeedback(null);
                 }}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  mode === "sign-in" ? "bg-stone-950 text-white" : "text-stone-600 hover:text-stone-900"
+                  mode === "sign-in"
+                    ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                    : "text-[color:var(--color-text-muted)] hover:text-white"
                 }`}
               >
                 登入
@@ -179,7 +181,9 @@ export function HomeAuthNav() {
                   setFeedback(null);
                 }}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  mode === "sign-up" ? "bg-stone-950 text-white" : "text-stone-600 hover:text-stone-900"
+                  mode === "sign-up"
+                    ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
+                    : "text-[color:var(--color-text-muted)] hover:text-white"
                 }`}
               >
                 註冊
@@ -188,56 +192,58 @@ export function HomeAuthNav() {
 
             <form onSubmit={handleAuthSubmit} className="grid gap-3">
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-stone-700">Email</span>
+                <span className="text-sm font-medium text-[color:var(--color-text-soft)]">Email</span>
                 <input
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="you@example.com"
-                  className="rounded-[1rem] border border-stone-300 px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
                 />
               </label>
 
               {mode === "sign-up" ? (
                 <label className="grid gap-2">
-                  <span className="text-sm font-medium text-stone-700">顯示名稱（可選）</span>
+                  <span className="text-sm font-medium text-[color:var(--color-text-soft)]">
+                    顯示名稱（可選）
+                  </span>
                   <input
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="例如：Alice"
-                    className="rounded-[1rem] border border-stone-300 px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                    className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
                   />
                 </label>
               ) : null}
 
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-stone-700">密碼</span>
+                <span className="text-sm font-medium text-[color:var(--color-text-soft)]">密碼</span>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder={mode === "sign-up" ? "至少 6 個字元" : "輸入密碼"}
-                  className="rounded-[1rem] border border-stone-300 px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                  className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
                 />
               </label>
 
               <button
                 type="submit"
                 disabled={isPending || !supabaseAvailable}
-                className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+                className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-accent)] px-5 py-3 text-sm font-semibold text-[color:var(--color-accent-ink)] transition hover:bg-[color:var(--color-accent-strong)] disabled:cursor-not-allowed disabled:bg-[color:var(--color-surface-muted)] disabled:text-[color:var(--color-text-dim)]"
               >
                 {isPending ? "處理中..." : mode === "sign-in" ? "登入" : "建立帳號"}
               </button>
             </form>
 
-            <p className="text-sm leading-7 text-stone-500">
+            <p className="text-sm leading-7 text-[color:var(--color-text-muted)]">
               使用 Email + 密碼登入。這個入口放在右上角，首頁正文會先讓人看案件內容。
             </p>
           </div>
         )}
 
         {feedback || !supabaseAvailable ? (
-          <div className="mt-4 rounded-[1rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
+          <div className="glass-chip mt-4 rounded-[1rem] px-4 py-3 text-sm leading-7 text-[color:var(--color-text-soft)]">
             {feedback ?? "Supabase 尚未設定完成，登入功能暫時無法使用。"}
           </div>
         ) : null}

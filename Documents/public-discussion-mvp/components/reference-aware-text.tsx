@@ -42,7 +42,13 @@ export function ReferenceAwareText({
 
   if (!content) {
     return (
-      <p className={compact ? "text-sm leading-6 text-stone-500" : "text-base leading-8 text-stone-500"}>
+      <p
+        className={
+          compact
+            ? "text-sm leading-7 text-[var(--color-text-muted)]"
+            : "text-base leading-8 text-[var(--color-text-muted)]"
+        }
+      >
         尚未整理
       </p>
     );
@@ -67,7 +73,13 @@ export function ReferenceAwareText({
 
   if (isBulletList) {
     return (
-      <ul className={compact ? "space-y-2 text-sm leading-6 text-stone-700" : "space-y-3 text-base leading-8 text-[var(--color-text)]"}>
+      <ul
+        className={
+          compact
+            ? "space-y-2 text-sm leading-7 text-[var(--color-text-soft)]"
+            : "space-y-3 text-base leading-8 text-[var(--color-text)]"
+        }
+      >
         {lines.map((line) => (
           <li key={line} className="flex gap-3">
             <span className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletColorClass}`} />
@@ -79,7 +91,13 @@ export function ReferenceAwareText({
   }
 
   return (
-    <p className={compact ? "whitespace-pre-wrap text-sm leading-6 text-stone-700" : "whitespace-pre-wrap text-base leading-8 text-[var(--color-text)]"}>
+    <p
+      className={
+        compact
+          ? "whitespace-pre-wrap text-sm leading-7 text-[var(--color-text-soft)]"
+          : "whitespace-pre-wrap text-base leading-8 text-[var(--color-text)]"
+      }
+    >
       {renderWithReferences(content, references)}
     </p>
   );

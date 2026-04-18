@@ -74,10 +74,10 @@ export function ProposalForm() {
   }
 
   return (
-    <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_60px_-35px_rgba(41,37,36,0.35)]">
-      <h2 className="text-2xl font-semibold text-stone-950">建立草稿提案</h2>
+    <section className="glass-panel-strong rounded-[2rem] p-6">
+      <h2 className="text-2xl font-semibold text-white">建立草稿提案</h2>
 
-      <div className="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
+      <div className="glass-chip mt-4 rounded-[1.25rem] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
         {loading
           ? "正在確認登入狀態..."
           : canPropose
@@ -87,19 +87,19 @@ export function ProposalForm() {
 
       <form onSubmit={handleSubmit} className="mt-5 grid gap-4">
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-stone-700">提案標題</span>
+          <span className="text-sm font-medium text-[var(--color-text-soft)]">提案標題</span>
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="例如：某事件是否值得整理成正式案件"
-            className="rounded-[1rem] border border-stone-300 px-4 py-3 text-base text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+            className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-base text-white outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
           />
         </label>
 
-        <section className="grid gap-4 rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
+        <section className="glass-chip grid gap-4 rounded-[1.5rem] p-4">
           <div>
-            <h3 className="text-lg font-semibold text-stone-950">提案草稿板塊</h3>
-            <p className="mt-2 text-sm leading-7 text-stone-600">
+            <h3 className="text-lg font-semibold text-white">提案草稿板塊</h3>
+            <p className="muted-copy mt-2 text-sm">
               proposal 現在會盡量和正式 case 使用相同板塊，這樣之後升格時不需要再整份重拆。
               只有「作者 OS / 心裡話」會留在草稿端，不會直接進正式案件。
             </p>
@@ -108,25 +108,25 @@ export function ProposalForm() {
           {proposalDraftSections.map((section) => (
             <label key={section.key} className="grid gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-stone-700">{section.label}</span>
+                <span className="text-sm font-medium text-[var(--color-text-soft)]">{section.label}</span>
                 {!section.promoteToCase ? (
-                  <span className="rounded-full border border-stone-300 bg-white px-2 py-1 text-[11px] font-semibold text-stone-600">
+                  <span className="glass-chip rounded-full px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]">
                     草稿限定
                   </span>
                 ) : null}
               </div>
-              <span className="text-xs leading-6 text-stone-500">{section.description}</span>
+              <span className="text-xs leading-6 text-[var(--color-text-muted)]">{section.description}</span>
               <textarea
                 value={draft[section.key]}
                 onChange={(event) => updateDraftField(section.key, event.target.value)}
                 placeholder={`請填寫「${section.label}」`}
-                className="min-h-28 rounded-[1rem] border border-stone-300 bg-white px-4 py-3 text-sm leading-6 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-950"
+                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-accent)]"
               />
             </label>
           ))}
         </section>
 
-        <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 p-4 text-sm leading-7 text-stone-600">
+        <div className="glass-chip rounded-[1.25rem] p-4 text-sm leading-7 text-[var(--color-text-soft)]">
           提案送出後，作者可以持續補內容；Level 3 可以審查是否適合升格；
           正式案件則由管理端做最終整理與管理。
         </div>
@@ -135,14 +135,14 @@ export function ProposalForm() {
           <button
             type="submit"
             disabled={isPending || !canPropose}
-            className="inline-flex items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+            className="inline-flex items-center justify-center rounded-full bg-[color:var(--color-accent)] px-5 py-3 text-sm font-semibold text-[color:var(--color-accent-ink)] transition hover:bg-[color:var(--color-accent-strong)] disabled:cursor-not-allowed disabled:bg-[color:var(--color-surface-muted)] disabled:text-[color:var(--color-text-dim)]"
           >
             {isPending ? "送出中..." : "送出提案"}
           </button>
         </div>
 
         {feedback ? (
-          <div className="rounded-[1rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
+          <div className="glass-chip rounded-[1rem] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
             {feedback}
           </div>
         ) : null}

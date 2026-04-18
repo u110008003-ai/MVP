@@ -182,13 +182,13 @@ export function ProposalsBoard({
   return (
     <section className="grid gap-4">
       {feedback ? (
-        <div className="rounded-[1rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-700">
+        <div className="glass-chip rounded-[1rem] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
           {feedback}
         </div>
       ) : null}
 
       {proposals.length === 0 ? (
-        <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-white p-8 text-stone-600">
+        <div className="glass-panel rounded-[1.5rem] border-dashed p-8 text-[var(--color-text-muted)]">
           目前還沒有任何提案。
         </div>
       ) : (
@@ -253,47 +253,47 @@ function ProposalCard({
   }
 
   return (
-    <article className="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(41,37,36,0.25)]">
+    <article className="glass-panel rounded-[1.75rem] p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+        <span className="metal-chip rounded-full px-3 py-1 text-xs font-semibold">
           {proposal.status === "promoted" ? "已升格" : "草稿提案"}
         </span>
-        <span className="text-sm text-stone-500">
+        <span className="text-sm text-[var(--color-text-muted)]">
           提案者：{proposal.profiles?.display_name ?? "未知"}
         </span>
         {proposal.status === "promoted" ? (
-          <span className="text-sm text-stone-500">
+          <span className="text-sm text-[var(--color-text-muted)]">
             升格者：{proposal.reviewed_by_profile?.display_name ?? "尚未紀錄"}
           </span>
         ) : null}
       </div>
 
       {isEditing ? (
-        <div className="mt-5 grid gap-4 rounded-[1.5rem] border border-amber-200 bg-amber-50 p-4">
+        <div className="glass-chip mt-5 grid gap-4 rounded-[1.5rem] p-4">
           <label className="grid gap-2">
-            <span className="text-sm font-medium text-stone-700">提案標題</span>
+            <span className="text-sm font-medium text-[var(--color-text-soft)]">提案標題</span>
             <input
               value={editTitle}
               onChange={(event) => setEditTitle(event.target.value)}
-              className="rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-amber-500"
+              className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-base text-white outline-none transition focus:border-[color:var(--color-accent)]"
             />
           </label>
 
           {proposalDraftSections.map((section) => (
             <label key={section.key} className="grid gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-stone-700">{section.label}</span>
+                <span className="text-sm font-medium text-[var(--color-text-soft)]">{section.label}</span>
                 {!section.promoteToCase ? (
-                  <span className="rounded-full border border-stone-300 bg-white px-2 py-1 text-[11px] font-semibold text-stone-600">
+                  <span className="glass-chip rounded-full px-2 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]">
                     草稿限定
                   </span>
                 ) : null}
               </div>
-              <span className="text-xs leading-6 text-stone-500">{section.description}</span>
+              <span className="text-xs leading-6 text-[var(--color-text-muted)]">{section.description}</span>
               <textarea
                 value={editDraft[section.key]}
                 onChange={(event) => updateEditDraftField(section.key, event.target.value)}
-                className="min-h-28 rounded-[1rem] border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-stone-900 outline-none transition focus:border-amber-500"
+                className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-card-strong)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition focus:border-[color:var(--color-accent)]"
               />
             </label>
           ))}
@@ -306,7 +306,7 @@ function ProposalCard({
                 resetEditState();
                 setIsEditing(false);
               }}
-              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:text-stone-950 disabled:cursor-not-allowed disabled:text-stone-400"
+              className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
             >
               取消
             </button>
@@ -317,7 +317,7 @@ function ProposalCard({
                 onSave(proposal.id, editTitle, editDraft);
                 setIsEditing(false);
               }}
-              className="inline-flex rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+              className="inline-flex rounded-full bg-[color:var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-ink)] transition hover:bg-[color:var(--color-accent-strong)] disabled:cursor-not-allowed disabled:bg-[color:var(--color-surface-muted)] disabled:text-[var(--color-text-dim)]"
             >
               {isPending ? "儲存中..." : "儲存提案"}
             </button>
@@ -325,8 +325,8 @@ function ProposalCard({
         </div>
       ) : (
         <>
-          <h2 className="mt-4 text-xl font-semibold text-stone-950">{proposal.title}</h2>
-          <p className="mt-2 text-sm leading-7 text-stone-500">
+          <h2 className="mt-4 text-xl font-semibold text-white">{proposal.title}</h2>
+          <p className="muted-copy mt-2 text-sm">
             提案板塊現在會盡量對齊正式案件，方便之後直接升格整理。
           </p>
 
@@ -343,12 +343,11 @@ function ProposalCard({
                   defaultOpen={section.key === "question" || section.key === "facts"}
                   compact
                   badge={section.promoteToCase ? undefined : "草稿限定"}
-                  surface="light"
                 />
               ))}
             </div>
           ) : (
-            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-stone-700">
+            <p className="mt-3 whitespace-pre-wrap text-base leading-8 text-[var(--color-text-soft)]">
               {proposal.content}
             </p>
           )}
@@ -364,7 +363,7 @@ function ProposalCard({
               setIsEditing(true);
             }}
             disabled={isPending}
-            className="inline-flex rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:border-amber-500 disabled:cursor-not-allowed disabled:text-stone-400"
+            className="glass-chip inline-flex rounded-full border-[color:var(--color-line-strong)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-strong)] transition hover:border-[color:var(--color-accent)] disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
           >
             編輯我的提案
           </button>
@@ -373,7 +372,7 @@ function ProposalCard({
         {proposal.promoted_case_id ? (
           <Link
             href={`/cases/${proposal.promoted_case_id}`}
-            className="inline-flex rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:text-stone-950"
+            className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[color:var(--color-border-bright)] hover:text-white"
           >
             查看已建立案件
           </Link>
@@ -384,7 +383,7 @@ function ProposalCard({
             type="button"
             onClick={() => onPromote(proposal.id)}
             disabled={isPending}
-            className="inline-flex rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-400"
+            className="inline-flex rounded-full bg-[color:var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-ink)] transition hover:bg-[color:var(--color-accent-strong)] disabled:cursor-not-allowed disabled:bg-[color:var(--color-surface-muted)] disabled:text-[var(--color-text-dim)]"
           >
             升格成案件
           </button>
