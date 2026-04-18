@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { listCaseTypes } from "@/lib/infection-explorer";
 
 const platformPrinciples = [
   {
@@ -23,9 +22,22 @@ const workflowSteps = [
   "Review a case-ready dashboard with exportable interpretation.",
 ];
 
-export default function Home() {
-  const scenarios = listCaseTypes();
+const scenarios = [
+  {
+    id: "sepsis",
+    name: "Sepsis",
+    href: "/explorer/new/sepsis",
+    summary: "Explore adjunctive and host-response-modulating candidates in sepsis.",
+  },
+  {
+    id: "candidemia",
+    name: "Candidemia",
+    href: "/explorer/new/candidemia",
+    summary: "Review exploratory adjunctive candidates and mechanistic evidence in candidemia.",
+  },
+] as const;
 
+export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[color:var(--color-background)] px-6 py-8 text-[color:var(--color-foreground)]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
