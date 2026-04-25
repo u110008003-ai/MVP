@@ -130,8 +130,8 @@ export function AuthPanel() {
           </div>
 
           <div className="grid gap-2 text-sm leading-8 text-[var(--color-text-soft)]">
-            <p>Level 1：補充證據、指出錯誤、修正推論</p>
-            <p>Level 2：提出新題目</p>
+            <p>Level 1：補充證據、指出錯誤、修正推論、提出題目</p>
+            <p>Level 2：補強草稿、整理討論方向</p>
             <p>Level 3：整理案件、管理內容、升格結論</p>
           </div>
 

@@ -21,7 +21,7 @@ export function ProposalForm() {
 
   const canPropose =
     Boolean(session?.user) &&
-    Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_2"));
+    Boolean(profile?.role && roleMeetsRequirement(profile.role, "level_1"));
 
   function updateDraftField(key: ProposalDraftSectionKey, value: string) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -37,7 +37,7 @@ export function ProposalForm() {
     setFeedback(null);
 
     if (!canPropose || !session?.user) {
-      setFeedback("只有 Level 2 以上帳號可以送出提案。");
+      setFeedback("只要登入 Level 1 以上帳號，就可以送出提案。");
       return;
     }
 
@@ -45,7 +45,7 @@ export function ProposalForm() {
       const accessToken = session.access_token;
 
       if (!accessToken) {
-        setFeedback("登入狀態失效，請重新登入後再試一次。");
+        setFeedback("登入狀態已過期，請重新登入後再試。");
         return;
       }
 
@@ -81,8 +81,8 @@ export function ProposalForm() {
         {loading
           ? "正在確認登入狀態..."
           : canPropose
-            ? `你目前可以提案，登入身份：${profile?.display_name ?? session?.user.email}`
-            : "請先登入 Level 2 以上帳號，才可以送出提案。"}
+            ? `目前登入：${profile?.display_name ?? session?.user.email}，你可以直接送出提案。`
+            : "請先登入 Level 1 以上帳號，才可以送出提案。"}
       </div>
 
       <form onSubmit={handleSubmit} className="mt-5 grid gap-4">
@@ -91,7 +91,7 @@ export function ProposalForm() {
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="例如：某事件是否值得整理成正式案件"
+            placeholder="例如：請用一句話說明這份提案想討論什麼"
             className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-base text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
           />
         </label>
@@ -100,8 +100,8 @@ export function ProposalForm() {
           <div>
             <h3 className="text-lg font-semibold text-[var(--color-text)]">提案草稿板塊</h3>
             <p className="muted-copy mt-2 text-sm">
-              proposal 現在會盡量和正式 case 使用相同板塊，這樣之後升格時不需要再整份重拆。
-              只有「作者 OS / 心裡話」會留在草稿端，不會直接進正式案件。
+              這裡的欄位會幫你把想法拆開整理。之後若提案成熟，管理端可以把可公開的內容整理進正式案件。
+              標記為「草稿限定」的欄位不會直接升格到正式案件。
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export function ProposalForm() {
               <textarea
                 value={draft[section.key]}
                 onChange={(event) => updateDraftField(section.key, event.target.value)}
-                placeholder={`請填寫「${section.label}」`}
+                placeholder={`請先填寫「${section.label}」`}
                 className="min-h-28 rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
               />
             </label>
@@ -127,8 +127,7 @@ export function ProposalForm() {
         </section>
 
         <div className="glass-chip rounded-[1.25rem] p-4 text-sm leading-7 text-[var(--color-text-soft)]">
-          提案送出後，作者可以持續補內容；Level 3 可以審查是否適合升格；
-          正式案件則由管理端做最終整理與管理。
+          現在只要 Level 1 就能提案。Level 3 之後可以審看提案是否成熟，並決定是否升格成正式案件。
         </div>
 
         <div className="flex justify-end">

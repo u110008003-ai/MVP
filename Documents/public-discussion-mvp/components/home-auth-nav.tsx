@@ -38,7 +38,7 @@ export function HomeAuthNav() {
     setFeedback(null);
 
     if (!supabase) {
-      setFeedback("Supabase 尚未設定完成，暫時無法登入。");
+      setFeedback("Supabase 尚未完成設定，請稍後再試。");
       return;
     }
 
@@ -48,7 +48,7 @@ export function HomeAuthNav() {
       const normalizedName = displayName.trim();
 
       if (!normalizedEmail || !normalizedPassword) {
-        setFeedback("請填寫 email 和密碼。");
+        setFeedback("請先填入 email 與密碼。");
         return;
       }
 
@@ -73,7 +73,7 @@ export function HomeAuthNav() {
           return;
         }
 
-        setFeedback(data.session ? "註冊成功，已登入。" : "註冊成功，若有開信箱驗證請先完成確認。");
+        setFeedback(data.session ? "註冊成功，已直接登入。" : "註冊成功，請到信箱完成驗證。");
         return;
       }
 
@@ -104,40 +104,40 @@ export function HomeAuthNav() {
 
   return (
     <details className="group relative">
-      <summary className="glass-chip flex cursor-pointer list-none items-center gap-3 rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]">
+      <summary className="glass-chip flex cursor-pointer list-none items-center gap-3 rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]">
         <span>{session?.user ? profile?.display_name || session.user.email : "登入 / 註冊"}</span>
-        <span className="text-xs text-[color:var(--color-text-muted)] transition group-open:rotate-180">▾</span>
+        <span className="text-xs text-[var(--color-text-muted)] transition group-open:rotate-180">⌄</span>
       </summary>
 
       <div className="glass-panel-strong absolute right-0 z-20 mt-3 w-[min(92vw,24rem)] rounded-[1.5rem] p-5">
         {session?.user ? (
           <div className="grid gap-4">
-            <div className="glass-chip rounded-[1.25rem] p-4 text-[color:var(--color-text)]">
-              <p className="text-sm text-[color:var(--color-text-muted)]">目前登入</p>
+            <div className="glass-chip rounded-[1.25rem] p-4 text-[var(--color-text)]">
+              <p className="text-sm text-[var(--color-text-muted)]">目前登入</p>
               <p className="mt-2 text-lg font-semibold">{profile?.display_name || session.user.email}</p>
-              <p className="mt-1 text-sm text-[color:var(--color-text-muted)]">{session.user.email}</p>
-              <span className="mt-4 inline-flex rounded-full bg-[color:var(--color-surface-muted)] px-3 py-1 text-xs font-semibold text-[color:var(--color-text)]">
+              <p className="mt-1 text-sm text-[var(--color-text-muted)]">{session.user.email}</p>
+              <span className="mt-4 inline-flex rounded-full bg-[var(--color-surface-muted)] px-3 py-1 text-xs font-semibold text-[var(--color-text)]">
                 {getVisibleRoleLabel(profile?.role)}
               </span>
             </div>
 
-            <div className="grid gap-2 text-sm leading-7 text-[color:var(--color-text-soft)]">
-              <p>Level 1：補充證據、指出錯誤、修正推論</p>
-              <p>Level 2：提出新題目</p>
+            <div className="grid gap-2 text-sm leading-7 text-[var(--color-text-soft)]">
+              <p>Level 1：補充證據、指出錯誤、修正推論、提出題目</p>
+              <p>Level 2：補強草稿、整理討論方向</p>
               <p>Level 3：整理案件、管理內容、升格結論</p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/proposals"
-                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
               >
                 前往提案池
               </Link>
               {profile?.role && (profile.role === "level_3" || profile.role === "level_4") ? (
                 <Link
                   href="/admin/submissions"
-                  className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)]"
+                  className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
                 >
                   submissions 管理
                 </Link>
@@ -146,7 +146,7 @@ export function HomeAuthNav() {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[color:var(--color-text-soft)] transition hover:border-[color:var(--color-accent)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:text-[color:var(--color-text-dim)]"
+                className="glass-chip inline-flex rounded-full px-4 py-2 text-sm font-medium text-[var(--color-text-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:text-[var(--color-text-dim)]"
               >
                 登出
               </button>
@@ -168,8 +168,8 @@ export function HomeAuthNav() {
                 }}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "sign-in"
-                    ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
-                    : "text-[color:var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[var(--color-accent)] text-[var(--color-accent-ink)]"
+                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
                 }`}
               >
                 登入
@@ -182,8 +182,8 @@ export function HomeAuthNav() {
                 }}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   mode === "sign-up"
-                    ? "bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)]"
-                    : "text-[color:var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[var(--color-accent)] text-[var(--color-accent-ink)]"
+                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
                 }`}
               >
                 註冊
@@ -192,7 +192,7 @@ export function HomeAuthNav() {
 
             <form onSubmit={handleAuthSubmit} className="grid gap-3">
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-[color:var(--color-text-soft)]">Email</span>
+                <span className="text-sm font-medium text-[var(--color-text-soft)]">Email</span>
                 <input
                   type="email"
                   value={email}
@@ -204,9 +204,7 @@ export function HomeAuthNav() {
 
               {mode === "sign-up" ? (
                 <label className="grid gap-2">
-                  <span className="text-sm font-medium text-[color:var(--color-text-soft)]">
-                    顯示名稱（可選）
-                  </span>
+                  <span className="text-sm font-medium text-[var(--color-text-soft)]">顯示名稱</span>
                   <input
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
@@ -217,12 +215,12 @@ export function HomeAuthNav() {
               ) : null}
 
               <label className="grid gap-2">
-                <span className="text-sm font-medium text-[color:var(--color-text-soft)]">密碼</span>
+                <span className="text-sm font-medium text-[var(--color-text-soft)]">密碼</span>
                 <input
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder={mode === "sign-up" ? "至少 6 個字元" : "輸入密碼"}
+                  placeholder={mode === "sign-up" ? "至少 6 個字元" : "請輸入密碼"}
                   className="rounded-[1rem] border border-[color:var(--color-border)] bg-[color:var(--color-surface-main)] px-4 py-3 text-sm text-[var(--color-text)] outline-none transition placeholder:text-[color:var(--color-text-dim)] focus:border-[color:var(--color-gold)]"
                 />
               </label>
@@ -236,15 +234,15 @@ export function HomeAuthNav() {
               </button>
             </form>
 
-            <p className="text-sm leading-7 text-[color:var(--color-text-muted)]">
-              使用 Email + 密碼登入。這個入口放在右上角，首頁正文會先讓人看案件內容。
+            <p className="text-sm leading-7 text-[var(--color-text-muted)]">
+              現在只要登入 Level 1 以上帳號，就可以先送出提案。
             </p>
           </div>
         )}
 
         {feedback || !supabaseAvailable ? (
-          <div className="glass-chip mt-4 rounded-[1rem] px-4 py-3 text-sm leading-7 text-[color:var(--color-text-soft)]">
-            {feedback ?? "Supabase 尚未設定完成，登入功能暫時無法使用。"}
+          <div className="glass-chip mt-4 rounded-[1rem] px-4 py-3 text-sm leading-7 text-[var(--color-text-soft)]">
+            {feedback ?? "Supabase 尚未完成設定，請先確認網站環境變數。"}
           </div>
         ) : null}
       </div>

@@ -3,7 +3,7 @@ import { getSupabaseServerClientForToken } from "@/lib/supabase";
 import { requireRole } from "@/lib/server-auth";
 
 export async function POST(request: Request) {
-  const auth = await requireRole(request, "level_2");
+  const auth = await requireRole(request, "level_1");
 
   if (!auth.actor || auth.response) {
     return auth.response ?? NextResponse.json({ error: "Unauthorized." }, { status: 401 });
