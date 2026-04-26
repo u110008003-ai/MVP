@@ -26,13 +26,13 @@ type PageProps = {
 const statusLabel: Record<CaseStatus, string> = {
   draft: "草稿",
   proposal: "提案中",
-  formal: "正式",
+  formal: "正式案件",
 };
 
 const submissionTypeLabel: Record<SubmissionType, string> = {
   evidence: "證據",
-  error: "錯誤指認",
-  inference: "推論",
+  error: "錯誤修正",
+  inference: "推論補充",
 };
 
 export default async function CaseDetailPage({ params }: PageProps) {
@@ -47,6 +47,8 @@ export default async function CaseDetailPage({ params }: PageProps) {
     await getAcceptedSubmissionsForCase(caseItem.id);
   const { revisions, error: revisionsError } = await getRevisionsForCase(caseItem.id);
   const references = parseReferenceLinks(caseItem.reference_links);
+  const narrativeSideA = caseItem.narrative_side_a?.trim() || caseItem.narrative_timeline?.trim() || "";
+  const narrativeSideB = caseItem.narrative_side_b?.trim() || "";
 
   return (
     <main className="page-shell min-h-screen px-6 py-10 text-[var(--color-text)]">
@@ -55,7 +57,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           href="/"
           className="glass-chip inline-flex w-fit rounded-full px-4 py-2 text-sm text-[var(--color-text-muted)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
         >
-          返回首頁
+          回到首頁
         </Link>
 
         <section className="glass-panel-strong rounded-[2rem] p-8">
@@ -83,7 +85,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
               value={caseItem.created_by_profile?.display_name ?? "尚未紀錄"}
             />
             <AttributionCard
-              label="升格為正式案件"
+              label="升格整理者"
               value={caseItem.promoted_by_profile?.display_name ?? "尚未紀錄"}
             />
           </div>
@@ -119,24 +121,43 @@ export default async function CaseDetailPage({ params }: PageProps) {
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="section-kicker">Narrative</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                事件來龍去脈
-              </h2>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">雙方觀點脈絡</h2>
             </div>
             <p className="muted-copy max-w-2xl text-sm">
-              這個區塊會把整件事拆成多行，每一行都能單獨點開檢視，方便逐段討論。
+              這裡把原本單一的來龍去脈拆成兩塊，方便並排整理雙方視角。你可以拿來放甲方 / 乙方、
+              支持 / 反對，或任何兩組需要對照的敘事。
             </p>
           </div>
 
-          <div className="mt-6">
-            <TimelineExplorer value={caseItem.narrative_timeline} />
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <article className="rounded-[1.5rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-5">
+              <p className="section-kicker">Viewpoint A</p>
+              <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">觀點 A</h3>
+              <p className="mt-2 text-sm leading-7 text-[var(--color-text-muted)]">
+                建議放其中一方的事件整理與關鍵節點。
+              </p>
+              <div className="mt-5">
+                <TimelineExplorer value={narrativeSideA} />
+              </div>
+            </article>
+
+            <article className="rounded-[1.5rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] p-5">
+              <p className="section-kicker">Viewpoint B</p>
+              <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">觀點 B</h3>
+              <p className="mt-2 text-sm leading-7 text-[var(--color-text-muted)]">
+                建議放另一方的事件整理與不同版本敘事。
+              </p>
+              <div className="mt-5">
+                <TimelineExplorer value={narrativeSideB} />
+              </div>
+            </article>
           </div>
         </section>
 
         <section className="grid gap-4">
           <CollapsibleContentSection
             label="已確認事實"
-            description="這裡只放目前已有來源支持、可以直接追溯的內容。"
+            description="這裡只放目前有依據、能被查證的內容。"
             value={caseItem.confirmed_facts}
             tone="success"
             references={references}
@@ -144,28 +165,28 @@ export default async function CaseDetailPage({ params }: PageProps) {
           />
           <CollapsibleContentSection
             label="目前可能解釋"
-            description="把不同可能性先拆開，避免和已確認事實混在一起。"
+            description="列出目前合理的解釋方向，但不要把猜測直接寫成定論。"
             value={caseItem.possible_explanations}
             tone="info"
             references={references}
           />
           <CollapsibleContentSection
             label="未支持主張"
-            description="這裡整理仍需補證據、或目前還不足以下判斷的說法。"
+            description="放目前常被講，但證據還不足的說法。"
             value={caseItem.unsupported_claims}
             tone="warning"
             references={references}
           />
           <CollapsibleContentSection
             label="證據與材料"
-            description="集中列出已掌握的證據、摘錄或調查材料。"
+            description="這裡放目前已整理進案件的證據、材料與線索。"
             value={caseItem.evidence_list}
             tone="neutral"
             references={references}
           />
           <CollapsibleContentSection
             label="待確認問題"
-            description="這些是接下來還需要繼續查證或補齊的地方。"
+            description="列出目前還沒查清楚、需要再補的地方。"
             value={caseItem.open_questions}
             tone="neutral"
             references={references}
@@ -179,7 +200,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">參考連結</h2>
             </div>
             <p className="muted-copy max-w-2xl text-sm">
-              這裡適合集中放外部文章、原始貼文、整理串、雲端文件等可直接點開的連結。
+              如果內文有 (1)(2) 這類編號，這裡就是它們對應的來源列表。
             </p>
           </div>
 
@@ -195,7 +216,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
               <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">總整理圖</h2>
             </div>
             <p className="muted-copy max-w-2xl text-sm">
-              可以放流程圖、關係圖、時間軸整理圖，讓第一次進來的人先快速看懂整體脈絡。
+              若這個案件有一張能快速幫讀者理解脈絡的圖，會放在這裡。
             </p>
           </div>
 
@@ -214,7 +235,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="mt-6 rounded-[1.5rem] border border-dashed border-white/15 p-6 text-sm leading-7 text-[var(--color-text-muted)]">
-              目前還沒有放總整理圖。你可以到案件編輯頁補上一張圖片網址和圖說。
+              目前還沒有總整理圖。之後若整理出圖解脈絡，可以再補進來。
             </div>
           )}
         </section>
@@ -223,9 +244,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="section-kicker">Accepted Submissions</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">
-                已採納的補充內容
-              </h2>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--color-text)]">已採納的補充內容</h2>
             </div>
 
             <CaseRoleActions caseId={caseItem.id} />
@@ -290,7 +309,7 @@ export default async function CaseDetailPage({ params }: PageProps) {
 
 function AttributionCard({ label, value }: { label: string; value: string }) {
   return (
-      <div className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3">
+    <div className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3">
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
         {label}
       </p>
@@ -317,9 +336,9 @@ function StatusBadge({ status }: { status: CaseStatus }) {
   }
 
   return (
-      <span className="rounded-full border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-sm font-semibold text-[var(--color-text-muted)]">
-        {statusLabel[status]}
-      </span>
+    <span className="rounded-full border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-sm font-semibold text-[var(--color-text-muted)]">
+      {statusLabel[status]}
+    </span>
   );
 }
 
@@ -334,23 +353,21 @@ function ReferenceLinks({ references }: { references: ReferenceEntry[] }) {
 
   return (
     <div className="grid gap-3">
-      {references.map((reference) => {
-        return (
-          <a
-            key={reference.index}
-            id={`reference-${reference.index}`}
-            href={reference.href}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
-          >
-            <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-surface-muted)] px-2 text-xs font-semibold text-[var(--color-gold)]">
-              ({reference.index})
-            </span>
-            <span>{reference.label}</span>
-          </a>
-        );
-      })}
+      {references.map((reference) => (
+        <a
+          key={reference.index}
+          id={`reference-${reference.index}`}
+          href={reference.href}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-[1.25rem] border border-[color:var(--color-border)] bg-[var(--color-surface-card)] px-4 py-3 text-sm leading-7 text-[var(--color-text)] transition hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
+        >
+          <span className="mr-3 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--color-surface-muted)] px-2 text-xs font-semibold text-[var(--color-gold)]">
+            ({reference.index})
+          </span>
+          <span>{reference.label}</span>
+        </a>
+      ))}
     </div>
   );
 }

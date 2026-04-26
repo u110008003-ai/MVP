@@ -45,6 +45,7 @@ with check (auth.uid() = id);
 
 drop policy if exists "Anyone can read proposals" on public.proposals;
 drop policy if exists "Level 2 can insert proposals" on public.proposals;
+drop policy if exists "Level 1 can insert proposals" on public.proposals;
 drop policy if exists "Author or Level 4 can update draft proposals" on public.proposals;
 drop policy if exists "Level 3 can promote proposals" on public.proposals;
 drop policy if exists "Authors and moderators can read proposals" on public.proposals;
@@ -63,7 +64,7 @@ using (
   )
 );
 
-create policy "Level 2 can insert proposals"
+create policy "Level 1 can insert proposals"
 on public.proposals
 for insert
 to authenticated
@@ -73,7 +74,7 @@ with check (
     select 1
     from public.profiles
     where profiles.id = auth.uid()
-      and profiles.role in ('level_2', 'level_3', 'level_4')
+      and profiles.role in ('level_1', 'level_2', 'level_3', 'level_4')
   )
 );
 
@@ -290,6 +291,8 @@ select
   c.title,
   c.question,
   c.narrative_timeline,
+  c.narrative_side_a,
+  c.narrative_side_b,
   c.stable_conclusion,
   c.confirmed_facts,
   c.possible_explanations,

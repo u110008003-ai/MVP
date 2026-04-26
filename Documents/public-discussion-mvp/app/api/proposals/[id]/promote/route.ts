@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { parseProposalDraft, isStructuredProposalContent } from "@/lib/proposal-draft";
+import {
+  combineNarrativeSides,
+  isStructuredProposalContent,
+  parseProposalDraft,
+} from "@/lib/proposal-draft";
 import { requireRole } from "@/lib/server-auth";
 import { getSupabaseServerClientForToken } from "@/lib/supabase";
 
@@ -26,7 +30,6 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-
   const supabase = getSupabaseServerClientForToken(auth.actor.access_token);
 
   if (!supabase) {
@@ -83,6 +86,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       title: string;
       question: string;
       narrative_timeline: string;
+      narrative_side_a: string;
+      narrative_side_b: string;
       stable_conclusion: string;
       confirmed_facts: string;
       possible_explanations: string;
@@ -107,6 +112,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       title: proposalResult.data.title,
       question: caseTemplate.question,
       narrative_timeline: caseTemplate.narrative_timeline,
+      narrative_side_a: caseTemplate.narrative_side_a,
+      narrative_side_b: caseTemplate.narrative_side_b,
       stable_conclusion: caseTemplate.stable_conclusion,
       confirmed_facts: caseTemplate.confirmed_facts,
       possible_explanations: caseTemplate.possible_explanations,
@@ -165,8 +172,12 @@ function buildCaseTemplate(title: string, content: string) {
 
     return {
       question: draft.question || title,
-      narrative_timeline: draft.narrative,
-      stable_conclusion: draft.conclusion || "這份提案剛升格為正式案件，後續可再依新資料修訂結論。",
+      narrative_timeline: combineNarrativeSides(draft.narrativeSideA, draft.narrativeSideB),
+      narrative_side_a: draft.narrativeSideA,
+      narrative_side_b: draft.narrativeSideB,
+      stable_conclusion:
+        draft.conclusion ||
+        "這份提案已被升格為正式案件。這裡先保留暫定結論，等待後續證據補強。",
       confirmed_facts: draft.facts,
       possible_explanations: draft.possibleExplanations,
       unsupported_claims: draft.claims,
@@ -174,10 +185,7 @@ function buildCaseTemplate(title: string, content: string) {
       reference_links: draft.referenceLinks,
       open_questions:
         draft.openQuestions ||
-        [
-          "- 哪些段落已足夠從提案提升為可確認事實？",
-          "- 哪些說法需要更多來源交叉比對？",
-        ].join("\n"),
+        ["- 哪些關鍵節點還需要更多來源支持？", "- 哪些雙方說法仍需要交叉核對？"].join("\n"),
       summary_image_note: draft.imageNote,
     };
   }
@@ -188,26 +196,28 @@ function buildCaseTemplate(title: string, content: string) {
   return {
     question: content,
     narrative_timeline: "",
-    stable_conclusion: "這份提案剛升格為正式案件，後續可再依新資料修訂結論。",
+    narrative_side_a: "",
+    narrative_side_b: "",
+    stable_conclusion: "這份提案已被升格為正式案件，後續需要再補強整理。",
     confirmed_facts: [
-      "- 這個案件是由 proposal 升格而來。",
+      "- 目前案件內容來自已送出的 proposal。",
       `- 原始提案標題：${title}`,
       `- 升格日期：${today}`,
     ].join("\n"),
     possible_explanations: "",
     unsupported_claims: [
-      "- 以下說法仍需要獨立來源驗證。",
-      "- 在移入已確認事實前，請先比對 accepted submissions 與外部材料。",
+      "- 目前仍有部分說法缺少直接證據支持。",
+      "- 後續可再透過 accepted submissions 補入雙方材料。",
     ].join("\n"),
     evidence_list: [
-      "- 補上 accepted submissions 中可追溯的來源。",
-      "- 每筆證據盡量保持簡短並可查證。",
+      "- 後續可補入 accepted submissions 與外部來源。",
+      "- 建議先補關鍵文件、時間線與對應說法。",
     ].join("\n"),
     reference_links: "",
     open_questions: [
-      "- 提案中的哪些部分已經可以驗證？",
-      "- 目前有哪些說法和現有證據互相衝突？",
-      `- 來自原始提案的後續追問：${questionSnippet}${questionTail}`,
+      "- 提案中的哪個核心爭點最需要再查證？",
+      "- 雙方觀點是否都有足夠脈絡可以整理？",
+      `- 目前提案摘要：${questionSnippet}${questionTail}`,
     ].join("\n"),
     summary_image_note: "",
   };

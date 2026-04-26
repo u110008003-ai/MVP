@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { getSupabaseServerClientForToken } from "@/lib/supabase";
+import { combineNarrativeSides } from "@/lib/proposal-draft";
 import type { CaseRecord, CaseUpdatePayload } from "@/lib/types";
 
 type RouteContext = {
@@ -14,6 +15,8 @@ const caseColumns = [
   "title",
   "question",
   "narrative_timeline",
+  "narrative_side_a",
+  "narrative_side_b",
   "stable_conclusion",
   "confirmed_facts",
   "possible_explanations",
@@ -65,11 +68,21 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  const existingCase = existingCaseResult.data;
+  const existingCase = {
+    ...existingCaseResult.data,
+    narrative_side_a:
+      existingCaseResult.data.narrative_side_a || existingCaseResult.data.narrative_timeline || "",
+    narrative_side_b: existingCaseResult.data.narrative_side_b || "",
+  } satisfies CaseRecord;
 
-  const payload: CaseUpdatePayload = {
+  const narrativeSideA = body.narrative_side_a?.trim() ?? "";
+  const narrativeSideB = body.narrative_side_b?.trim() ?? "";
+
+  const payload = {
     question: body.question?.trim() ?? "",
-    narrative_timeline: body.narrative_timeline?.trim() ?? "",
+    narrative_timeline: combineNarrativeSides(narrativeSideA, narrativeSideB),
+    narrative_side_a: narrativeSideA,
+    narrative_side_b: narrativeSideB,
     stable_conclusion: body.stable_conclusion?.trim() ?? "",
     confirmed_facts: body.confirmed_facts?.trim() ?? "",
     possible_explanations: body.possible_explanations?.trim() ?? "",
@@ -82,7 +95,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   };
 
   const casesTable = supabase.from("cases") as unknown as {
-    update: (values: CaseUpdatePayload) => {
+    update: (values: typeof payload) => {
       eq: (
         column: string,
         value: string,
@@ -111,12 +124,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       }) => PromiseLike<{ error: { message: string } | null }>;
     };
 
-    const revisionSummary = `更新欄位：${changedFields.map((field) => field.label).join("、")}`;
+    const revisionSummary = `本次更新：${changedFields.map((field) => field.label).join("、")}`;
     const revisionDetail = changedFields
       .map((field) => {
-        const before = readableValue(existingCase[field.key]);
-        const after = readableValue(payload[field.key]);
-        return `${field.label}\n變更前：${before}\n變更後：${after}`;
+        const before = readableValue(existingCase[field.key] as string);
+        const after = readableValue(payload[field.key] as string);
+        return `${field.label}\n更新前：${before}\n更新後：${after}`;
       })
       .join("\n\n");
 
@@ -136,7 +149,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   return NextResponse.json({
-    message: "案件已更新。",
+    message: "案件內容已更新。",
   });
 }
 
@@ -180,11 +193,30 @@ export async function DELETE(request: Request, context: RouteContext) {
   });
 }
 
-function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) {
-  const fieldLabels: Record<keyof CaseUpdatePayload, string> = {
+function getChangedFields(
+  existingCase: CaseRecord,
+  payload: Pick<
+    CaseRecord,
+    | "question"
+    | "narrative_timeline"
+    | "narrative_side_a"
+    | "narrative_side_b"
+    | "stable_conclusion"
+    | "confirmed_facts"
+    | "possible_explanations"
+    | "unsupported_claims"
+    | "evidence_list"
+    | "reference_links"
+    | "open_questions"
+    | "summary_image_url"
+    | "summary_image_note"
+  >,
+) {
+  const fieldLabels = {
     question: "核心問題",
-    narrative_timeline: "事件來龍去脈",
-    stable_conclusion: "穩定結論",
+    narrative_side_a: "觀點 A：來龍去脈",
+    narrative_side_b: "觀點 B：來龍去脈",
+    stable_conclusion: "目前暫定結論",
     confirmed_facts: "已確認事實",
     possible_explanations: "目前可能解釋",
     unsupported_claims: "未支持主張",
@@ -193,9 +225,9 @@ function getChangedFields(existingCase: CaseRecord, payload: CaseUpdatePayload) 
     open_questions: "待確認問題",
     summary_image_url: "總整理圖網址",
     summary_image_note: "總整理圖說明",
-  };
+  } satisfies Record<Exclude<keyof CaseUpdatePayload, never>, string>;
 
-  return (Object.keys(fieldLabels) as Array<keyof CaseUpdatePayload>)
+  return (Object.keys(fieldLabels) as Array<keyof typeof fieldLabels>)
     .filter((field) => existingCase[field] !== payload[field])
     .map((field) => ({
       key: field,

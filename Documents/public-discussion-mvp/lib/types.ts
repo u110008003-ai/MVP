@@ -7,6 +7,8 @@ export type CaseRecord = {
   title: string;
   question: string;
   narrative_timeline: string;
+  narrative_side_a: string;
+  narrative_side_b: string;
   stable_conclusion: string;
   confirmed_facts: string;
   possible_explanations: string;
@@ -38,7 +40,8 @@ export type CaseUpdatePayload = Pick<
   | "evidence_list"
   | "reference_links"
   | "open_questions"
-  | "narrative_timeline"
+  | "narrative_side_a"
+  | "narrative_side_b"
   | "summary_image_url"
   | "summary_image_note"
 >;

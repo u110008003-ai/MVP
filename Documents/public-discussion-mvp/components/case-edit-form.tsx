@@ -16,7 +16,8 @@ type FieldKey = keyof CaseUpdatePayload;
 
 const fieldLabel: Record<FieldKey, string> = {
   question: "核心問題",
-  narrative_timeline: "事件來龍去脈",
+  narrative_side_a: "觀點 A：來龍去脈",
+  narrative_side_b: "觀點 B：來龍去脈",
   stable_conclusion: "目前暫定結論",
   confirmed_facts: "已確認事實",
   possible_explanations: "目前可能解釋",
@@ -33,7 +34,8 @@ const transferPresets: Array<{ source: FieldKey; target: FieldKey }> = [
   { source: "confirmed_facts", target: "stable_conclusion" },
   { source: "possible_explanations", target: "stable_conclusion" },
   { source: "open_questions", target: "unsupported_claims" },
-  { source: "narrative_timeline", target: "stable_conclusion" },
+  { source: "narrative_side_a", target: "stable_conclusion" },
+  { source: "narrative_side_b", target: "stable_conclusion" },
 ];
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
@@ -42,7 +44,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
   const { session, profile } = useAuth();
   const [form, setForm] = useState<CaseUpdatePayload>({
     question: caseItem.question,
-    narrative_timeline: caseItem.narrative_timeline,
+    narrative_side_a: caseItem.narrative_side_a || caseItem.narrative_timeline || "",
+    narrative_side_b: caseItem.narrative_side_b || "",
     stable_conclusion: caseItem.stable_conclusion,
     confirmed_facts: caseItem.confirmed_facts,
     possible_explanations: caseItem.possible_explanations,
@@ -217,7 +220,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           <p className="section-kicker">整理工具</p>
           <h2 className="font-serif text-2xl text-[var(--color-text)]">編輯正式案件</h2>
           <p className="text-sm leading-8 text-[var(--color-text-soft)]">
-            這裡是正式案件的總編輯區。你可以把不同板塊的內容抽出、重組，再整理成更穩定的公開版本。
+            這裡是正式案件的總編輯區。現在你可以把「來龍去脈」拆成雙方視角，各自整理脈絡，再往下整合成公開版本。
           </p>
         </div>
 
@@ -245,14 +248,25 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         disabled={!canEditCase}
       />
 
-      <Field
-        label={fieldLabel.narrative_timeline}
-        hint="依時間順序把事件拆開，方便讀者理解事情的來龍去脈。"
-        value={form.narrative_timeline}
-        onChange={(value) => updateField("narrative_timeline", value)}
-        minHeight="min-h-44"
-        disabled={!canEditCase}
-      />
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Field
+          label={fieldLabel.narrative_side_a}
+          hint="可放其中一方的說法，例如甲方、支持方、當事人、官方說法。"
+          value={form.narrative_side_a}
+          onChange={(value) => updateField("narrative_side_a", value)}
+          minHeight="min-h-44"
+          disabled={!canEditCase}
+        />
+
+        <Field
+          label={fieldLabel.narrative_side_b}
+          hint="可放另一方的說法，例如乙方、反對方、外界質疑、不同版本敘事。"
+          value={form.narrative_side_b}
+          onChange={(value) => updateField("narrative_side_b", value)}
+          minHeight="min-h-44"
+          disabled={!canEditCase}
+        />
+      </section>
 
       <Field
         label={fieldLabel.stable_conclusion}

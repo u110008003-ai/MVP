@@ -7,6 +7,8 @@ const publicCaseColumns = [
   "title",
   "question",
   "narrative_timeline",
+  "narrative_side_a",
+  "narrative_side_b",
   "stable_conclusion",
   "confirmed_facts",
   "possible_explanations",
@@ -27,6 +29,8 @@ const privateCaseColumns = [
   "title",
   "question",
   "narrative_timeline",
+  "narrative_side_a",
+  "narrative_side_b",
   "stable_conclusion",
   "confirmed_facts",
   "possible_explanations",
@@ -47,6 +51,8 @@ type PublicCaseRow = {
   title: string;
   question: string;
   narrative_timeline: string;
+  narrative_side_a?: string | null;
+  narrative_side_b?: string | null;
   stable_conclusion: string;
   confirmed_facts: string;
   possible_explanations: string;
@@ -90,6 +96,8 @@ type PublicRevisionRow = {
   detail: string;
   created_at: string;
 };
+
+type PrivateCaseRow = Omit<CaseRecord, "created_by_profile" | "promoted_by_profile">;
 
 type AdminSubmissionRow = SubmissionRecord & {
   cases?: {
@@ -189,7 +197,16 @@ export async function getCaseByIdForEditor(accessToken: string, id: string) {
   }
 
   return {
-    caseItem: (data ?? null) as CaseRecord | null,
+    caseItem: data
+      ? ({
+          ...(data as unknown as PrivateCaseRow),
+          narrative_side_a:
+            (data as Partial<CaseRecord>).narrative_side_a ??
+            (data as Partial<CaseRecord>).narrative_timeline ??
+            "",
+          narrative_side_b: (data as Partial<CaseRecord>).narrative_side_b ?? "",
+        } as CaseRecord)
+      : null,
     error: null,
   };
 }
@@ -324,6 +341,8 @@ function mapPublicCaseRow(item: PublicCaseRow): CaseRecord {
     title: item.title,
     question: item.question,
     narrative_timeline: item.narrative_timeline,
+    narrative_side_a: item.narrative_side_a ?? item.narrative_timeline ?? "",
+    narrative_side_b: item.narrative_side_b ?? "",
     stable_conclusion: item.stable_conclusion,
     confirmed_facts: item.confirmed_facts,
     possible_explanations: item.possible_explanations,
