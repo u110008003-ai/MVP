@@ -291,8 +291,6 @@ select
   c.title,
   c.question,
   c.narrative_timeline,
-  c.narrative_side_a,
-  c.narrative_side_b,
   c.stable_conclusion,
   c.confirmed_facts,
   c.possible_explanations,
@@ -305,7 +303,9 @@ select
   c.status,
   c.updated_at,
   creator.display_name as created_by_display_name,
-  promoter.display_name as promoted_by_display_name
+  promoter.display_name as promoted_by_display_name,
+  c.narrative_side_a,
+  c.narrative_side_b
 from public.cases as c
 left join public.profiles as creator on creator.id = c.created_by
 left join public.profiles as promoter on promoter.id = c.promoted_by
